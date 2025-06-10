@@ -23,12 +23,25 @@ EcoTask est une plateforme web de gestion de tâches dédiée aux petites entrep
 
 ## 🔧 Technologies utilisées
 
-- **Frontend** : React 18 avec TypeScript
-- **Styling** : Tailwind CSS v3 + shadcn/ui
-- **État global** : Zustand
-- **Graphiques** : Recharts
-- **Build** : Vite
-- **Icons** : Lucide React
+### Frontend
+- **React 18** avec TypeScript
+- **Tailwind CSS v3** + shadcn/ui
+- **Zustand** pour l'état global
+- **Recharts** pour les graphiques
+- **Vite** comme build tool
+- **Lucide React** pour les icônes
+
+### Backend
+- **Node.js** avec Express.js
+- **TypeScript** pour la sécurité des types
+- **Prisma ORM** pour PostgreSQL
+- **Zod** pour la validation
+- **Docker** pour la containerisation
+
+### Base de données
+- **PostgreSQL 15** avec Docker
+- **Prisma** pour les migrations et requêtes
+- **Calculs CO₂** automatiques avec triggers
 
 ## 📊 Calcul des émissions CO₂
 
@@ -43,53 +56,131 @@ L'application utilise des coefficients hypothétiques pour estimer l'impact carb
 ## 🚀 Installation et démarrage
 
 ### Prérequis
-- Node.js 18+ 
+- Node.js 18+
+- Docker et Docker Compose
 - npm ou yarn
 
-### Installation
+### Installation rapide
 ```bash
 # Cloner le projet
 git clone <repository-url>
 cd ecotaskv2
 
-# Installer les dépendances
+# Configuration automatique (PostgreSQL + Backend + Frontend)
+npm run setup
+
+# Démarrer l'environnement complet
+npm run dev:full
+```
+
+### Installation manuelle
+```bash
+# Installer les dépendances frontend
 npm install
 
-# Démarrer en mode développement
+# Installer les dépendances backend
+cd backend && npm install && cd ..
+
+# Démarrer PostgreSQL
+docker-compose up -d postgres
+
+# Configurer la base de données
+cd backend
+npx prisma generate
+npx prisma db push
+npm run db:seed
+cd ..
+
+# Démarrer le backend (terminal 1)
+cd backend && npm run dev
+
+# Démarrer le frontend (terminal 2)
 npm run dev
 ```
 
-L'application sera accessible sur `http://localhost:5173`
+### URLs d'accès
+- **Frontend** : http://localhost:5173
+- **Backend API** : http://localhost:3001
+- **Health Check** : http://localhost:3001/health
+- **Prisma Studio** : `cd backend && npm run db:studio`
 
 ### Scripts disponibles
 ```bash
+# Frontend
 npm run dev          # Démarrage en mode développement
 npm run build        # Build de production
 npm run preview      # Aperçu du build de production
 npm run lint         # Vérification ESLint
+
+# Projet complet
+npm run setup        # Configuration initiale complète
+npm run dev:full     # Démarrer tout l'environnement
+npm run docker:up    # Démarrer les services Docker
+npm run docker:down  # Arrêter les services Docker
+
+# Base de données
+npm run db:studio    # Ouvrir Prisma Studio
 ```
+
+Pour plus de détails, consultez [INSTALLATION.md](./INSTALLATION.md).
 
 ## 🏗️ Architecture du projet
 
 ```
-src/
-├── components/          # Composants React
-│   ├── ui/             # Composants UI de base (shadcn/ui)
-│   ├── Dashboard.tsx   # Tableau de bord principal
-│   ├── TaskList.tsx    # Liste et gestion des tâches
-│   ├── TaskCard.tsx    # Carte d'affichage d'une tâche
-│   ├── TaskForm.tsx    # Formulaire de création/édition
-│   ├── ProjectList.tsx # Gestion des projets
-│   ├── TeamList.tsx    # Gestion de l'équipe
-│   ├── Navigation.tsx  # Navigation principale
-│   └── CO2Indicator.tsx # Indicateur d'émissions CO₂
-├── lib/
-│   └── utils.ts        # Utilitaires et calculs CO₂
-├── store/
-│   └── useStore.ts     # Store Zustand
-├── types/
-│   └── index.ts        # Types TypeScript
-└── main.tsx           # Point d'entrée
+├── frontend/
+│   ├── src/
+│   │   ├── components/          # Composants React
+│   │   │   ├── ui/             # Composants UI de base (shadcn/ui)
+│   │   │   ├── Dashboard.tsx   # Tableau de bord principal
+│   │   │   ├── TaskList.tsx    # Liste et gestion des tâches
+│   │   │   ├── TaskCard.tsx    # Carte d'affichage d'une tâche
+│   │   │   ├── TaskForm.tsx    # Formulaire de création/édition
+│   │   │   ├── ProjectList.tsx # Gestion des projets
+│   │   │   ├── TeamList.tsx    # Gestion de l'équipe
+│   │   │   ├── Navigation.tsx  # Navigation principale
+│   │   │   └── CO2Indicator.tsx # Indicateur d'émissions CO₂
+│   │   ├── services/           # Services API
+│   │   │   ├── api.ts         # Client API de base
+│   │   │   ├── userService.ts # Service utilisateurs
+│   │   │   ├── projectService.ts # Service projets
+│   │   │   ├── taskService.ts # Service tâches
+│   │   │   └── statsService.ts # Service statistiques
+│   │   ├── hooks/             # Hooks personnalisés
+│   │   │   └── useApi.ts      # Hooks pour les appels API
+│   │   ├── lib/
+│   │   │   └── utils.ts       # Utilitaires et calculs CO₂
+│   │   ├── store/
+│   │   │   └── useStore.ts    # Store Zustand simplifié
+│   │   ├── types/
+│   │   │   └── index.ts       # Types TypeScript
+│   │   └── main.tsx          # Point d'entrée
+│   └── package.json
+├── backend/
+│   ├── src/
+│   │   ├── routes/            # Routes API Express
+│   │   │   ├── users.ts      # CRUD utilisateurs
+│   │   │   ├── projects.ts   # CRUD projets
+│   │   │   ├── tasks.ts      # CRUD tâches
+│   │   │   └── stats.ts      # Statistiques et dashboard
+│   │   ├── middleware/        # Middlewares Express
+│   │   │   ├── errorHandler.ts # Gestion d'erreurs
+│   │   │   └── notFound.ts   # Route 404
+│   │   ├── utils/            # Utilitaires backend
+│   │   │   ├── database.ts   # Client Prisma
+│   │   │   ├── co2Calculator.ts # Calculs CO₂
+│   │   │   ├── validators.ts # Validation Zod
+│   │   │   └── seed.ts       # Données de test
+│   │   └── index.ts          # Serveur Express
+│   ├── prisma/
+│   │   └── schema.prisma     # Schéma de base de données
+│   └── package.json
+├── database/
+│   └── init/                 # Scripts d'initialisation PostgreSQL
+├── scripts/                  # Scripts de développement
+│   ├── setup.sh             # Configuration initiale
+│   └── dev.sh               # Démarrage développement
+├── docker-compose.yml        # Configuration Docker
+└── README.md
 ```
 
 ## 🎨 Design System

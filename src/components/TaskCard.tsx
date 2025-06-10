@@ -9,7 +9,7 @@ import { Calendar, User, Clock, Edit, Trash2 } from 'lucide-react';
 interface TaskCardProps {
   task: Task;
   onEdit?: (task: Task) => void;
-  onDelete?: (taskId: string) => void;
+  onDelete?: (task: Task) => void;
   onStatusChange?: (taskId: string, status: Task['status']) => void;
 }
 
@@ -40,7 +40,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onDelete(task.id)}
+                onClick={() => onDelete(task)}
                 className="h-8 w-8 text-red-600 hover:text-red-700"
               >
                 <Trash2 className="h-4 w-4" />

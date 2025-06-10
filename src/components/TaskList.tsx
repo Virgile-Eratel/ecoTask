@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TaskCard } from './TaskCard';
 import { TaskForm } from './TaskForm';
 import { Button } from './ui/button';
@@ -13,11 +13,16 @@ import {
   type TaskPriority,
   type TaskType
 } from '../types';
-import { useStore } from '../store/useStore';
+import type { User, Project } from '../types';
+import type { PaginatedResponse } from '../services/api';
+import { useApiList, useApiMutation, useApiData } from '../hooks/useApi';
+import { taskService, type CreateTaskData, type UpdateTaskData } from '../services/taskService';
+import { userService } from '../services/userService';
+import { projectService } from '../services/projectService';
+import { ConfirmDialog } from './ConfirmDialog';
 import { Plus, Search } from 'lucide-react';
 
 export function TaskList() {
-  const { tasks, addTask, updateTask, deleteTask, users, projects } = useStore();
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,85 +30,107 @@ export function TaskList() {
   const [filterPriority, setFilterPriority] = useState<TaskPriority | 'ALL'>('ALL');
   const [filterType, setFilterType] = useState<TaskType | 'ALL'>('ALL');
   const [filterProject, setFilterProject] = useState<string>('ALL');
+  const [deletingTask, setDeletingTask] = useState<Task | null>(null);
 
-  // Simuler des données de tâches pour la démo
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Hooks pour les données API
+  const {
+    items: tasks,
+    loading: tasksLoading,
+    error: tasksError,
+    fetchItems: fetchTasks,
+    addItem: addTaskToList,
+    updateItem: updateTaskInList,
+    removeItem: removeTaskFromList,
+  } = useApiList<Task>();
+
+  const { data: usersData, loading: usersLoading } = useApiData<PaginatedResponse<User>>(
+    () => userService.getUsers({ limit: 100 })
+  );
+
+  const { data: projectsData, loading: projectsLoading } = useApiData<PaginatedResponse<Project>>(
+    () => projectService.getProjects({ limit: 100 })
+  );
+
+  const { mutate: createTask, loading: createLoading } = useApiMutation<{ task: Task }>();
+  const { mutate: updateTask, loading: updateLoading } = useApiMutation<{ task: Task }>();
+  const { mutate: deleteTask, loading: deleteLoading } = useApiMutation<void>();
+
+  const users: User[] = usersData?.users || [];
+  const projects: Project[] = projectsData?.projects || [];
+
+  // Debounce la recherche
   useEffect(() => {
-    if (tasks.length === 0 && users.length > 0 && projects.length > 0) {
-      const mockTasks: Task[] = [
-        {
-          id: '1',
-          title: 'Optimiser les requêtes de base de données',
-          description: 'Améliorer les performances des requêtes SQL pour réduire la consommation énergétique',
-          type: 'TECHNICAL',
-          priority: 'HIGH',
-          status: 'IN_PROGRESS',
-          assigneeId: users[0].id,
-          assignee: users[0],
-          projectId: projects[0].id,
-          project: projects[0],
-          estimatedHours: 8,
-          actualHours: 5,
-          co2Emissions: 8.0,
-          dueDate: new Date('2024-02-15'),
-          createdAt: new Date('2024-01-15'),
-          updatedAt: new Date('2024-01-20'),
-        },
-        {
-          id: '2',
-          title: 'Rédiger la documentation utilisateur',
-          description: 'Créer la documentation complète pour les nouvelles fonctionnalités',
-          type: 'LIGHT',
-          priority: 'MEDIUM',
-          status: 'TODO',
-          assigneeId: users[1] ? users[1].id : users[0].id,
-          assignee: users[1] || users[0],
-          projectId: projects[0].id,
-          project: projects[0],
-          estimatedHours: 4,
-          actualHours: 0,
-          co2Emissions: 0.4,
-          dueDate: new Date('2024-02-20'),
-          createdAt: new Date('2024-01-18'),
-          updatedAt: new Date('2024-01-18'),
-        },
-      ];
-      
-      mockTasks.forEach(task => addTask(task));
-    }
-  }, [tasks.length, users, projects, addTask]);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, [searchTerm]);
 
-  const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'ALL' || task.status === filterStatus;
-    const matchesPriority = filterPriority === 'ALL' || task.priority === filterPriority;
-    const matchesType = filterType === 'ALL' || task.type === filterType;
-    const matchesProject = filterProject === 'ALL' || task.projectId === filterProject;
+  // Charger les tâches au montage et quand les filtres changent
+  useEffect(() => {
+    const filters: any = { limit: 50 };
+    if (debouncedSearch) filters.search = debouncedSearch;
+    if (filterStatus !== 'ALL') filters.status = filterStatus;
+    if (filterPriority !== 'ALL') filters.priority = filterPriority;
+    if (filterType !== 'ALL') filters.type = filterType;
+    if (filterProject !== 'ALL') filters.projectId = filterProject;
 
-    return matchesSearch && matchesStatus && matchesPriority && matchesType && matchesProject;
-  });
+    fetchTasks(() => taskService.getTasks(filters));
+  }, [debouncedSearch, filterStatus, filterPriority, filterType, filterProject, fetchTasks]);
 
-  const handleCreateTask = (taskData: Partial<Task>) => {
-    const user = users.find(u => u.id === taskData.assigneeId);
-    const project = projects.find(p => p.id === taskData.projectId);
-    
-    if (user && project) {
-      const newTask: Task = {
-        ...taskData,
-        assignee: user,
-        project: project,
-      } as Task;
-      
-      addTask(newTask);
-      setShowForm(false);
-    }
+  // Les tâches sont déjà filtrées côté serveur
+  const filteredTasks = tasks;
+
+  const handleCreateTask = async (taskData: Partial<Task>) => {
+    const createData: CreateTaskData = {
+      title: taskData.title!,
+      description: taskData.description,
+      type: taskData.type!,
+      priority: taskData.priority!,
+      assigneeId: taskData.assigneeId!,
+      projectId: taskData.projectId!,
+      estimatedHours: taskData.estimatedHours!,
+      dueDate: taskData.dueDate!.toISOString(),
+    };
+
+    const result = await createTask(
+      () => taskService.createTask(createData),
+      (data) => {
+        addTaskToList(data.task);
+        setShowForm(false);
+      }
+    );
   };
 
-  const handleUpdateTask = (taskData: Partial<Task>) => {
-    if (editingTask) {
-      updateTask(editingTask.id, taskData);
-      setEditingTask(null);
-    }
+  const handleUpdateTask = async (taskData: Partial<Task>) => {
+    if (!editingTask) return;
+
+    const updateData: UpdateTaskData = {};
+    if (taskData.title) updateData.title = taskData.title;
+    if (taskData.description !== undefined) updateData.description = taskData.description;
+    if (taskData.type) updateData.type = taskData.type;
+    if (taskData.priority) updateData.priority = taskData.priority;
+    if (taskData.status) updateData.status = taskData.status;
+    if (taskData.assigneeId) updateData.assigneeId = taskData.assigneeId;
+    if (taskData.projectId) updateData.projectId = taskData.projectId;
+    if (taskData.estimatedHours) updateData.estimatedHours = taskData.estimatedHours;
+    if (taskData.actualHours !== undefined) updateData.actualHours = taskData.actualHours;
+    if (taskData.dueDate) updateData.dueDate = taskData.dueDate.toISOString();
+
+    const result = await updateTask(
+      () => taskService.updateTask(editingTask.id, updateData),
+      (data) => {
+        updateTaskInList(editingTask.id, data.task);
+        setEditingTask(null);
+        setShowForm(false);
+      }
+    );
   };
 
   const handleEditTask = (task: Task) => {
@@ -111,19 +138,55 @@ export function TaskList() {
     setShowForm(true);
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
-      deleteTask(taskId);
-    }
+  const handleDeleteTask = (task: Task) => {
+    setDeletingTask(task);
   };
 
-  const handleStatusChange = (taskId: string, status: TaskStatus) => {
-    const updates: Partial<Task> = { status };
-    if (status === 'DONE') {
-      updates.completedAt = new Date();
-    }
-    updateTask(taskId, updates);
+  const confirmDeleteTask = async () => {
+    if (!deletingTask) return;
+
+    await deleteTask(
+      () => taskService.deleteTask(deletingTask.id),
+      () => {
+        // Fermer la modale
+        setDeletingTask(null);
+        // Refetch pour garantir la cohérence
+        const filters: any = { limit: 50 };
+        if (debouncedSearch) filters.search = debouncedSearch;
+        if (filterStatus !== 'ALL') filters.status = filterStatus;
+        if (filterPriority !== 'ALL') filters.priority = filterPriority;
+        if (filterType !== 'ALL') filters.type = filterType;
+        if (filterProject !== 'ALL') filters.projectId = filterProject;
+        fetchTasks(() => taskService.getTasks(filters));
+      }
+    );
   };
+
+  const handleStatusChange = async (taskId: string, status: TaskStatus) => {
+    await updateTask(
+      () => taskService.updateTaskStatus(taskId, status),
+      (data) => {
+        updateTaskInList(taskId, data.task);
+      }
+    );
+  };
+
+  // Gestion du loading et des erreurs
+  if (tasksLoading || usersLoading || projectsLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-muted-foreground">Chargement des tâches...</div>
+      </div>
+    );
+  }
+
+  if (tasksError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-red-600">Erreur: {tasksError}</div>
+      </div>
+    );
+  }
 
   if (showForm) {
     return (
@@ -135,6 +198,9 @@ export function TaskList() {
             setShowForm(false);
             setEditingTask(null);
           }}
+          users={users}
+          projects={projects}
+          loading={createLoading || updateLoading}
         />
       </div>
     );
@@ -252,6 +318,19 @@ export function TaskList() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Dialog de confirmation de suppression */}
+      {deletingTask && (
+        <ConfirmDialog
+          title="Supprimer la tâche"
+          message={`Êtes-vous sûr de vouloir supprimer la tâche "${deletingTask.title}" ? Cette action est irréversible.`}
+          confirmText="Supprimer"
+          onConfirm={confirmDeleteTask}
+          onCancel={() => setDeletingTask(null)}
+          loading={deleteLoading}
+          variant="danger"
+        />
       )}
     </div>
   );

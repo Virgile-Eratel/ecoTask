@@ -1,50 +1,38 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { CO2Indicator } from './CO2Indicator';
-import { useStore } from '../store/useStore';
+import { useApiData } from '../hooks/useApi';
+import { statsService } from '../services/statsService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Leaf, Users, FolderOpen, CheckCircle } from 'lucide-react';
 
 const COLORS = ['#10b981', '#f59e0b', '#ef4444'];
 
 export function Dashboard() {
-  const { dashboardStats, setDashboardStats } = useStore();
+  const { data: dashboardStats, loading, error } = useApiData(
+    () => statsService.getDashboardStats()
+  );
 
-  useEffect(() => {
-    // Simuler le chargement des données du dashboard
-    // En production, ceci ferait un appel à l'API
-    const mockStats = {
-      totalTasks: 45,
-      completedTasks: 32,
-      totalProjects: 8,
-      totalUsers: 12,
-      co2Stats: {
-        totalCO2: 156.7,
-        co2ByProject: [
-          { projectId: '1', projectName: 'Site Web Éco', co2Amount: 45.2 },
-          { projectId: '2', projectName: 'App Mobile', co2Amount: 67.8 },
-          { projectId: '3', projectName: 'Dashboard Analytics', co2Amount: 43.7 },
-        ],
-        co2ByMonth: [
-          { month: 'Jan', co2Amount: 23.4 },
-          { month: 'Fév', co2Amount: 34.6 },
-          { month: 'Mar', co2Amount: 45.2 },
-          { month: 'Avr', co2Amount: 53.5 },
-        ],
-        co2ByTaskType: [
-          { taskType: 'LIGHT' as const, co2Amount: 12.3 },
-          { taskType: 'TECHNICAL' as const, co2Amount: 89.4 },
-          { taskType: 'INTENSIVE' as const, co2Amount: 55.0 },
-        ],
-      },
-    };
-    setDashboardStats(mockStats);
-  }, [setDashboardStats]);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-muted-foreground">Chargement du tableau de bord...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-red-600">Erreur: {error}</div>
+      </div>
+    );
+  }
 
   if (!dashboardStats) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-muted-foreground">Chargement du tableau de bord...</div>
+        <div className="text-lg text-muted-foreground">Aucune donnée disponible</div>
       </div>
     );
   }

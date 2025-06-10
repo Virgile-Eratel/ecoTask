@@ -1,113 +1,108 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { CO2Indicator } from './CO2Indicator';
 import { Button } from './ui/button';
-import { useStore } from '../store/useStore';
-import { FolderOpen, Users, CheckSquare, Plus } from 'lucide-react';
-import type {Project} from "../types";
+import { useApiData, useApiMutation } from '../hooks/useApi';
+import { projectService, type CreateProjectData, type UpdateProjectData } from '../services/projectService';
+import { userService } from '../services/userService';
+import { ProjectForm } from './ProjectForm';
+import { ConfirmDialog } from './ConfirmDialog';
+import { FolderOpen, Users, CheckSquare, Plus, Edit, Trash2 } from 'lucide-react';
+import type { Project } from "../types";
 
 export function ProjectList() {
-  const { projects, setProjects, users, setUsers } = useStore();
+  const [showForm, setShowForm] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [deletingProject, setDeletingProject] = useState<Project | null>(null);
 
-  useEffect(() => {
-    // Simuler des données pour la démo
-    if (users.length === 0) {
-      const mockUsers = [
-        {
-          id: '1',
-          name: 'Alice Martin',
-          email: 'alice@example.com',
-          role: 'admin' as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: '2',
-          name: 'Bob Dupont',
-          email: 'bob@example.com',
-          role: 'member' as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: '3',
-          name: 'Claire Rousseau',
-          email: 'claire@example.com',
-          role: 'member' as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-      setUsers(mockUsers);
-    }
+  const { data: projectsData, loading, error, refetch } = useApiData(
+    () => projectService.getProjects({ limit: 100 })
+  );
 
-    if (projects.length === 0 && users.length > 0) {
-      const mockProjects: Project[] = [
-        {
-          id: '1',
-          name: 'Site Web Éco-responsable',
-          description: 'Développement d\'un site web optimisé pour réduire l\'empreinte carbone',
-          color: '#10b981',
-          ownerId: users[0]?.id || '1',
-          owner: users[0] || {
-            id: '1',
-            name: 'Alice Martin',
-            email: 'alice@example.com',
-            role: 'admin',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          members: users.slice(0, 2),
-          tasks: [],
-          totalCO2: 45.2,
-          createdAt: new Date('2024-01-01'),
-          updatedAt: new Date(),
-        },
-        {
-          id: '2',
-          name: 'Application Mobile Verte',
-          description: 'App mobile pour sensibiliser aux pratiques écologiques',
-          color: '#059669',
-          ownerId: users[1]?.id || '2',
-          owner: users[1] || {
-            id: '2',
-            name: 'Bob Dupont',
-            email: 'bob@example.com',
-            role: 'member',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          members: users,
-          tasks: [],
-          totalCO2: 67.8,
-          createdAt: new Date('2024-01-15'),
-          updatedAt: new Date(),
-        },
-        {
-          id: '3',
-          name: 'Dashboard Analytics',
-          description: 'Tableau de bord pour analyser l\'impact environnemental',
-          color: '#0d9488',
-          ownerId: users[0]?.id || '1',
-          owner: users[0] || {
-            id: '1',
-            name: 'Alice Martin',
-            email: 'alice@example.com',
-            role: 'admin',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          members: [users[0], users[2]].filter(Boolean),
-          tasks: [],
-          totalCO2: 43.7,
-          createdAt: new Date('2024-02-01'),
-          updatedAt: new Date(),
-        },
-      ];
-      setProjects(mockProjects);
-    }
-  }, [projects.length, users, setProjects, setUsers]);
+  const { data: usersData, loading: usersLoading } = useApiData(
+    () => userService.getUsers({ limit: 100 })
+  );
+
+  const { mutate: createProject, loading: createLoading } = useApiMutation<{ project: Project }>();
+  const { mutate: updateProject, loading: updateLoading } = useApiMutation<{ project: Project }>();
+  const { mutate: deleteProject, loading: deleteLoading } = useApiMutation<void>();
+
+  const projects = projectsData?.projects || [];
+  const users = usersData?.users || [];
+
+  const handleCreateProject = async (projectData: CreateProjectData) => {
+    await createProject(
+      () => projectService.createProject(projectData),
+      () => {
+        setShowForm(false);
+        refetch();
+      }
+    );
+  };
+
+  const handleUpdateProject = async (projectData: UpdateProjectData) => {
+    if (!editingProject) return;
+
+    await updateProject(
+      () => projectService.updateProject(editingProject.id, projectData),
+      () => {
+        setEditingProject(null);
+        setShowForm(false);
+        refetch();
+      }
+    );
+  };
+
+  const handleDeleteProject = async () => {
+    if (!deletingProject) return;
+
+    await deleteProject(
+      () => projectService.deleteProject(deletingProject.id),
+      () => {
+        setDeletingProject(null);
+        refetch();
+      }
+    );
+  };
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setShowForm(true);
+  };
+
+  if (loading || usersLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-muted-foreground">Chargement des projets...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-red-600">Erreur: {error}</div>
+      </div>
+    );
+  }
+
+  if (showForm) {
+    return (
+      <div className="space-y-6">
+        <ProjectForm
+          project={editingProject || undefined}
+          users={users}
+          onSubmit={editingProject ? handleUpdateProject : handleCreateProject}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingProject(null);
+          }}
+          loading={createLoading || updateLoading}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -119,7 +114,7 @@ export function ProjectList() {
             Gérez vos projets et suivez leur impact environnemental
           </p>
         </div>
-        <Button className="gap-2">
+        <Button onClick={() => setShowForm(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           Nouveau projet
         </Button>
@@ -127,7 +122,7 @@ export function ProjectList() {
 
       {/* Liste des projets */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => (
+        {projects.map((project : any) => (
           <Card key={project.id} className="transition-shadow hover:shadow-md">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -162,7 +157,7 @@ export function ProjectList() {
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <CheckSquare className="h-4 w-4" />
-                  <span>{project.tasks.length} tâches</span>
+                  <span>{project.tasks?.length} tâches</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -174,7 +169,7 @@ export function ProjectList() {
               <div className="pt-2">
                 <h4 className="text-sm font-medium mb-2">Équipe:</h4>
                 <div className="flex flex-wrap gap-1">
-                  {project.members.slice(0, 3).map((member) => (
+                  {project.members.slice(0, 3).map((member : any) => (
                     <Badge key={member.id} variant="secondary" className="text-xs">
                       {member.name.split(' ')[0]}
                     </Badge>
@@ -188,11 +183,22 @@ export function ProjectList() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Voir détails
-                </Button>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEditProject(project)}
+                  className="flex-1"
+                >
+                  <Edit className="h-4 w-4 mr-1" />
                   Modifier
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDeletingProject(project)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -214,25 +220,38 @@ export function ProjectList() {
               </div>
               <div>
                 <div className="text-2xl font-bold">
-                  {projects.reduce((sum, p) => sum + p.members.length, 0)}
+                  {projects.reduce((sum: any, p: { members: string | any[]; }) => sum + p.members?.length, 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">Membres impliqués</div>
               </div>
               <div>
                 <div className="text-2xl font-bold">
-                  {projects.reduce((sum, p) => sum + p.tasks.length, 0)}
+                  {projects.reduce((sum: any, p: { tasks: string | any[]; }) => sum + p.tasks?.length, 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">Tâches totales</div>
               </div>
               <div>
                 <div className="text-2xl font-bold">
-                  {projects.reduce((sum, p) => sum + p.totalCO2, 0).toFixed(1)} kg
+                  {projects.reduce((sum: any, p: { totalCO2: any; }) => sum + p.totalCO2, 0).toFixed(1)} kg
                 </div>
                 <div className="text-sm text-muted-foreground">CO₂ total</div>
               </div>
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Dialog de confirmation de suppression */}
+      {deletingProject && (
+        <ConfirmDialog
+          title="Supprimer le projet"
+          message={`Êtes-vous sûr de vouloir supprimer le projet "${deletingProject.name}" ? Cette action supprimera également toutes les tâches associées et est irréversible.`}
+          confirmText="Supprimer"
+          onConfirm={handleDeleteProject}
+          onCancel={() => setDeletingProject(null)}
+          loading={deleteLoading}
+          variant="danger"
+        />
       )}
     </div>
   );

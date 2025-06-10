@@ -7,7 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup": "./scripts/setup.sh",
+    "dev:full": "./scripts/dev.sh",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "db:studio": "cd backend && npm run db:studio"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

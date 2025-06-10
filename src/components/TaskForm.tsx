@@ -10,20 +10,23 @@ import {
   type TaskType,
   type TaskPriority,
   type TaskStatus,
-  type Task
+  type Task,
+  type User,
+  type Project
 } from '../types';
 import { calculateCO2Emissions } from '../lib/utils';
-import { useStore } from '../store/useStore';
 import { CO2Indicator } from './CO2Indicator';
 
 interface TaskFormProps {
   task?: Task;
   onSubmit: (taskData: Partial<Task>) => void;
   onCancel: () => void;
+  users: User[];
+  projects: Project[];
+  loading?: boolean;
 }
 
-export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
-  const { users, projects } = useStore();
+export function TaskForm({ task, onSubmit, onCancel, users, projects, loading = false }: TaskFormProps) {
   const [formData, setFormData] = useState({
     title: task?.title || '',
     description: task?.description || '',
@@ -211,10 +214,10 @@ export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="submit" className="flex-1">
-              {task ? 'Mettre à jour' : 'Créer la tâche'}
+            <Button type="submit" className="flex-1" disabled={loading}>
+              {loading ? 'Enregistrement...' : (task ? 'Mettre à jour' : 'Créer la tâche')}
             </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
               Annuler
             </Button>
           </div>

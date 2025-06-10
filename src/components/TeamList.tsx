@@ -1,12 +1,100 @@
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { useStore } from '../store/useStore';
-import { User, Mail, Shield, Plus } from 'lucide-react';
+import { useApiData, useApiMutation } from '../hooks/useApi';
+import { userService, type CreateUserData, type UpdateUserData } from '../services/userService';
+import { UserForm } from './UserForm';
+import { ConfirmDialog } from './ConfirmDialog';
+import type { User as UserType } from '../types';
+import { User, Mail, Shield, Plus, Edit, Trash2 } from 'lucide-react';
 
 export function TeamList() {
-  const { users } = useStore();
+  const [showForm, setShowForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserType | null>(null);
+  const [deletingUser, setDeletingUser] = useState<UserType | null>(null);
+
+  const { data: usersData, loading, error, refetch } = useApiData(
+    () => userService.getUsers({ limit: 100 })
+  );
+
+  const { mutate: createUser, loading: createLoading } = useApiMutation<{ user: UserType }>();
+  const { mutate: updateUser, loading: updateLoading } = useApiMutation<{ user: UserType }>();
+  const { mutate: deleteUser, loading: deleteLoading } = useApiMutation<void>();
+
+  const users = usersData?.users || [];
+
+  const handleCreateUser = async (userData: CreateUserData) => {
+    await createUser(
+      () => userService.createUser(userData),
+      () => {
+        setShowForm(false);
+        refetch();
+      }
+    );
+  };
+
+  const handleUpdateUser = async (userData: UpdateUserData) => {
+    if (!editingUser) return;
+
+    await updateUser(
+      () => userService.updateUser(editingUser.id, userData),
+      () => {
+        setEditingUser(null);
+        setShowForm(false);
+        refetch();
+      }
+    );
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+
+    await deleteUser(
+      () => userService.deleteUser(deletingUser.id),
+      () => {
+        setDeletingUser(null);
+        refetch();
+      }
+    );
+  };
+
+  const handleEditUser = (user: UserType) => {
+    setEditingUser(user);
+    setShowForm(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-muted-foreground">Chargement de l'équipe...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-red-600">Erreur: {error}</div>
+      </div>
+    );
+  }
+
+  if (showForm) {
+    return (
+      <div className="space-y-6">
+        <UserForm
+          user={editingUser || undefined}
+          onSubmit={editingUser ? handleUpdateUser : handleCreateUser}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingUser(null);
+          }}
+          loading={createLoading || updateLoading}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -18,7 +106,7 @@ export function TeamList() {
             Gérez les membres de votre équipe et leurs rôles
           </p>
         </div>
-        <Button className="gap-2">
+        <Button onClick={() => setShowForm(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           Inviter un membre
         </Button>
@@ -67,11 +155,22 @@ export function TeamList() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Voir profil
-                </Button>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEditUser(user)}
+                  className="flex-1"
+                >
+                  <Edit className="h-4 w-4 mr-1" />
                   Modifier
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDeletingUser(user)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -133,6 +232,19 @@ export function TeamList() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog de confirmation de suppression */}
+      {deletingUser && (
+        <ConfirmDialog
+          title="Supprimer l'utilisateur"
+          message={`Êtes-vous sûr de vouloir supprimer ${deletingUser.name} ? Cette action est irréversible.`}
+          confirmText="Supprimer"
+          onConfirm={handleDeleteUser}
+          onCancel={() => setDeletingUser(null)}
+          loading={deleteLoading}
+          variant="danger"
+        />
+      )}
     </div>
   );
 }
