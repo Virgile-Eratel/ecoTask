@@ -10,9 +10,13 @@
     "preview": "vite preview",
     "setup": "./scripts/setup.sh",
     "dev:full": "./scripts/dev.sh",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f",
+    "dev:docker": "./scripts/docker-dev.sh",
+    "dev:docker:simple": "./scripts/docker-simple.sh",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:build": "docker compose build",
+    "docker:test": "./scripts/test-docker.sh",
     "db:studio": "cd backend && npm run db:studio"
   },
   "dependencies": {

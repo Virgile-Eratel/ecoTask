@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de données PostgreSQL
   postgres:
@@ -22,7 +20,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: ecotask-backend
     restart: unless-stopped
     environment:
@@ -41,21 +39,25 @@ services:
       - ecotask-network
     command: npm run dev
 
-  # Frontend (optionnel, pour production)
+  # Frontend React/Vite
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile
     container_name: ecotask-frontend
     restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:3001
     ports:
-      - "3000:3000"
+      - "5173:5173"
     depends_on:
       - backend
+    volumes:
+      - .:/app
+      - /app/node_modules
     networks:
       - ecotask-network
-    profiles:
-      - production
 
 volumes:
   postgres_data:

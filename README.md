@@ -73,6 +73,25 @@ npm run setup
 npm run dev:full
 ```
 
+### 🐳 Démarrage avec Docker (Recommandé)
+```bash
+# Test de la configuration Docker
+npm run docker:test
+
+# Démarrage complet avec Docker (frontend + backend + base de données)
+npm run dev:docker
+# ou pour un démarrage plus simple
+npm run dev:docker:simple
+```
+
+**Avantages Docker :**
+- ✅ Environnement identique pour tous les développeurs
+- ✅ Pas besoin d'installer PostgreSQL localement
+- ✅ Isolation complète des services
+- ✅ Configuration automatique
+
+Consultez [DOCKER_GUIDE.md](./DOCKER_GUIDE.md) pour plus de détails.
+
 ### Installation manuelle
 ```bash
 # Installer les dépendances frontend
@@ -114,9 +133,16 @@ npm run lint         # Vérification ESLint
 
 # Projet complet
 npm run setup        # Configuration initiale complète
-npm run dev:full     # Démarrer tout l'environnement
-npm run docker:up    # Démarrer les services Docker
-npm run docker:down  # Arrêter les services Docker
+npm run dev:full     # Démarrer tout l'environnement (local)
+
+# Docker (recommandé)
+npm run dev:docker        # Environnement complet avec Docker (avec vérifications)
+npm run dev:docker:simple # Environnement Docker simple et rapide
+npm run docker:up         # Démarrer les services Docker
+npm run docker:down       # Arrêter les services Docker
+npm run docker:logs       # Voir les logs des conteneurs
+npm run docker:build      # Construire les images Docker
+npm run docker:test       # Tester la configuration Docker
 
 # Base de données
 npm run db:studio    # Ouvrir Prisma Studio

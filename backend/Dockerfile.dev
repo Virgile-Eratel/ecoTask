@@ -11,27 +11,18 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY prisma ./prisma/
 
-# Installer toutes les dépendances (y compris dev pour TypeScript)
+# Installer toutes les dépendances (y compris dev)
 RUN npm ci
 
 # Générer le client Prisma
 RUN npx prisma generate
 
-# Copier le code source
-COPY src ./src/
-
-# Construire l'application
-RUN npm run build
-
-# Supprimer les dépendances de développement après la construction
-RUN npm prune --production
-
 # Exposer le port
 EXPOSE 3001
 
 # Variables d'environnement par défaut
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV PORT=3001
 
-# Commande de démarrage
-CMD ["npm", "start"]
+# Commande de démarrage en mode développement
+CMD ["npm", "run", "dev"]
