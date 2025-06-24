@@ -9,14 +9,6 @@ variables:
   NODE_ENV: "test"
   DATABASE_URL: "file:./test.db"
   JWT_SECRET: "test-jwt-secret-key"
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_VERIFY: 1
-
-# Services pour Docker-in-Docker
-services:
-  - docker:24.0.5-dind
 
 # Cache pour optimiser les builds
 cache:
@@ -176,41 +168,45 @@ build_backend:
     - main
     - develop
 
-# Build Docker Images
 build_docker_backend:
   stage: docker-build
-  image: docker:24.0.5
-  dependencies:
-    - build_backend
+  image: docker:24.0.5      # Docker CLI
+  services:
+    - name: docker:24.0.5-dind  # Docker daemon
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""      # désactive TLS entre CLI et daemon
   before_script:
-    - docker info
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
-    - echo "🐳 Construction de l'image Docker backend..."
-    - cd backend
-    - docker build -f Dockerfile.prod -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE/backend:latest .
-    - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE/backend:latest
-  only:
-    - main
-    - develop
+    - echo "🐳 Build et push backend via Docker-in-Docker"
+    - docker build \
+      -f backend/Dockerfile.prod \
+      -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" \
+      backend
+    - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/backend:latest"
+    - docker push "$CI_REGISTRY_IMAGE/backend:latest"
 
 build_docker_frontend:
   stage: docker-build
   image: docker:24.0.5
-  dependencies:
-    - build_frontend
+  services:
+    - name: docker:24.0.5-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   before_script:
-    - docker info
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
-    - echo "🐳 Construction de l'image Docker frontend..."
-    - docker build -f Dockerfile.prod -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE/frontend:latest .
-    - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE/frontend:latest
-  only:
-    - main
-    - develop
+    - echo "🐳 Build et push frontend via Docker-in-Docker"
+    - docker build \
+      -f Dockerfile.prod \
+      -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" \
+      .
+    - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/frontend:latest"
+    - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
 
 deploy_production:
   stage: deploy
@@ -221,41 +217,37 @@ deploy_production:
   only:
     - main
   before_script:
-    - apk add --no-cache openssh-client rsync curl
+    # 1) installer ssh et docker compose client
+    - apk add --no-cache openssh-client curl
+    - curl -SL "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" \
+      -o /usr/local/bin/docker-compose
+    - chmod +x /usr/local/bin/docker-compose
+
+    # 2) préparer SSH
     - eval "$(ssh-agent -s)"
     - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
-    - printf "%s\n" "$SSH_PUB" > ~/.ssh/id_rsa.pub
-    - chmod 600 ~/.ssh/id_rsa*
     - ssh-keyscan -H 51.68.233.128 >> ~/.ssh/known_hosts
+
   script:
-    - echo "🚀 Déploiement sur le serveur de production..."
+    - echo "🚀 Déploiement en production via Docker Compose"
 
-    # Créer les répertoires distants
-    - ssh dev5@51.68.233.128 "mkdir -p /var/www/ecotask"
+    # 3) synchroniser le fichier compose et .env
+    - rsync -az --delete docker-compose-prod.yml dev5@51.68.233.128:/var/www/ecotask/docker-compose-prod.yml
+    - rsync -az --delete .env.prod dev5@51.68.233.128:/var/www/ecotask/.env
 
-    # Copier les fichiers de configuration Docker
-    - rsync -az --delete docker-compose.prod.yml dev5@51.68.233.128:/var/www/ecotask/
-    - rsync -az --delete .env.prod.example dev5@51.68.233.128:/var/www/ecotask/.env.prod
-    - rsync -az --delete scripts/deploy.sh dev5@51.68.233.128:/var/www/ecotask/
-
-    # Rendre le script de déploiement exécutable
-    - ssh dev5@51.68.233.128 "chmod +x /var/www/ecotask/deploy.sh"
-
-    # Se connecter au registry Docker et déployer
-    - ssh dev5@51.68.233.128 "
-        cd /var/www/ecotask &&
-        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' &&
-        export CI_REGISTRY_IMAGE='$CI_REGISTRY_IMAGE' &&
-        export CI_COMMIT_SHA='$CI_COMMIT_SHA' &&
-        docker-compose -f docker-compose.prod.yml pull &&
-        docker-compose -f docker-compose.prod.yml down --remove-orphans &&
-        docker-compose -f docker-compose.prod.yml up -d &&
-        docker system prune -f
-      "
-
-    # Vérifier que l'application est en ligne
-    - echo "⏳ Va vérifier que l'application est en ligne..."
+    # 4) exécuter docker compose sur le serveur
+    - ssh dev5@51.68.233.128 << 'EOF'
+      cd /var/www/ecotask
+      # login au registry
+      echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+      # (optionnel) pull des dernières images
+      docker-compose -f docker-compose-prod.yml pull
+      # monter les services en arrière-plan
+      docker-compose -f docker-compose-prod.yml up -d --remove-orphans
+      # nettoyage
+      docker system prune -f
+      EOF
 
   environment:
     name: production
