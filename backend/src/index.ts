@@ -19,7 +19,7 @@ import statsRoutes from './routes/stats';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Middleware
 app.use(helmet());
@@ -43,10 +43,10 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api/stats', statsRoutes);
+app.use('/users', userRoutes);
+app.use('/projects', projectRoutes);
+app.use('/tasks', taskRoutes);
+app.use('/stats', statsRoutes);
 
 // Error handling middleware
 app.use(notFound);

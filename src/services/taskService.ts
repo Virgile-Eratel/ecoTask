@@ -40,27 +40,27 @@ export interface TaskFilters {
 
 class TaskService {
   async getTasks(filters: TaskFilters = {}): Promise<PaginatedResponse<Task>> {
-    return apiClient.get('/api/tasks', filters) as Promise<PaginatedResponse<Task>>;
+    return apiClient.get('/tasks', filters) as Promise<PaginatedResponse<Task>>;
   }
 
   async getTaskById(id: string): Promise<ApiResponse<{ task: Task }>> {
-    return apiClient.get(`/api/tasks/${id}`);
+    return apiClient.get(`/tasks/${id}`);
   }
 
   async createTask(taskData: CreateTaskData): Promise<ApiResponse<{ task: Task }>> {
-    return apiClient.post('/api/tasks', taskData);
+    return apiClient.post('/tasks', taskData);
   }
 
   async updateTask(id: string, taskData: UpdateTaskData): Promise<ApiResponse<{ task: Task }>> {
-    return apiClient.put(`/api/tasks/${id}`, taskData);
+    return apiClient.put(`/tasks/${id}`, taskData);
   }
 
   async deleteTask(id: string): Promise<ApiResponse<void>> {
-    return apiClient.delete(`/api/tasks/${id}`);
+    return apiClient.delete(`/tasks/${id}`);
   }
 
   async updateTaskStatus(id: string, status: TaskStatus): Promise<ApiResponse<{ task: Task }>> {
-    return apiClient.put(`/api/tasks/${id}/status`, { status });
+    return apiClient.put(`/tasks/${id}/status`, { status });
   }
 }
 
