@@ -144,7 +144,6 @@ build_frontend:
     paths:
       - dist/
     expire_in: 1 week
-  when: manual
   only:
     - merge_requests
     - main
@@ -164,7 +163,6 @@ build_backend:
     paths:
       - backend/dist/
     expire_in: 1 week
-  when: manual
   only:
     - merge_requests
     - main
@@ -186,7 +184,7 @@ build_docker_backend:
     - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
     - docker tag "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/backend:latest"
     - docker push "$CI_REGISTRY_IMAGE/backend:latest"
-  when: manual
+
 build_docker_frontend:
   stage: docker-build
   image: docker:24.0.5
@@ -203,10 +201,13 @@ build_docker_frontend:
     - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA"
     - docker tag "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/frontend:latest"
     - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
-  when: manual
+
 deploy_production:
   stage: deploy
   image: alpine:latest
+  needs:
+    - build_docker_backend
+    - build_docker_frontend
   only:
     - main
   before_script:
@@ -223,9 +224,18 @@ deploy_production:
 
   script:
     - echo "🚀 Déploiement en production via Docker Compose"
-    - pwd
-    - ls -la .
-    - ls -la ..
+    - ssh dev5@51.68.233.128 "mkdir -p /var/www/ecotask"
+    - rsync -az --delete "$CI_PROJECT_DIR/docker-compose-prod.yml" dev5@51.68.233.128:/var/www/ecotask/docker-compose-prod.yml
+    - rsync -az --delete "$CI_PROJECT_DIR/.env.prod"            dev5@51.68.233.128:/var/www/ecotask/.env
+    - |
+      ssh dev5@51.68.233.128 << 'EOF'
+        cd /var/www/ecotask
+        echo "$CI_REGISTRY_PASSWORD" \
+          | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+        docker-compose -f docker-compose-prod.yml pull
+        docker-compose -f docker-compose-prod.yml up -d --remove-orphans
+        docker system prune -f
+      EOF
 
   environment:
     name: production
