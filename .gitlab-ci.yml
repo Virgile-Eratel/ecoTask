@@ -225,8 +225,8 @@ deploy_production:
     - |
       ssh dev5@51.68.233.128 \
         "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && \
-         docker-compose -f /home/dev5/ecoTask/docker-compose-prod.yml pull && \
-         docker-compose -f /home/dev5/ecoTask/docker-compose-prod.yml up -d --remove-orphans && \
+         docker compose -f /home/dev5/ecoTask/docker-compose-prod.yml pull && \
+         docker compose -f /home/dev5/ecoTask/docker-compose-prod.yml up -d --remove-orphans && \
          docker system prune -f"
   environment:
     name: production
