@@ -211,7 +211,7 @@ deploy_production:
   only:
     - main
   before_script:
-    - apk add --no-cache openssh-client curl rsync
+    - apk add --no-cache openssh-client curl
     - |
       curl -SL \
         "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" \
@@ -223,20 +223,18 @@ deploy_production:
     - ssh-keyscan -H 51.68.233.128 >> ~/.ssh/known_hosts
 
   script:
-    - echo "🚀 Déploiement en production via Docker Compose"
-    - ssh dev5@51.68.233.128 "mkdir -p /var/www/ecotask"
-    - rsync -az --delete "$CI_PROJECT_DIR/docker-compose-prod.yml" dev5@51.68.233.128:/var/www/ecotask/docker-compose-prod.yml
-    - rsync -az --delete "$CI_PROJECT_DIR/.env.prod"            dev5@51.68.233.128:/var/www/ecotask/.env
+    - echo "🚀 Déploiement en production via Docker Compose (sans cd)"
+
     - |
       ssh dev5@51.68.233.128 << 'EOF'
-        cd /var/www/ecotask
         echo "$CI_REGISTRY_PASSWORD" \
           | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-        docker-compose -f docker-compose-prod.yml pull
-        docker-compose -f docker-compose-prod.yml up -d --remove-orphans
+        docker-compose -f /var/www/ecotask/docker-compose-prod.yml pull
+        docker-compose -f /var/www/ecotask/docker-compose-prod.yml up -d --remove-orphans
         docker system prune -f
       EOF
 
   environment:
     name: production
     url: http://51.68.233.128
+  when: manual
