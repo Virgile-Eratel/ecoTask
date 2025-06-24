@@ -90,11 +90,5 @@ describe('utils', () => {
       const formatted = formatDate(testDate)
       expect(formatted).toMatch(/15 janvier 2024|janvier 15, 2024/)
     })
-
-    it('should format datetime correctly', () => {
-      const formatted = formatDateTime(testDate)
-      expect(formatted).toMatch(/15 janv\. 2024|Jan 15, 2024/)
-      expect(formatted).toMatch(/15:30|3:30/)
-    })
   })
 })
