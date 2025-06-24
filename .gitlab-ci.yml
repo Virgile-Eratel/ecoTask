@@ -170,20 +170,17 @@ build_backend:
 
 build_docker_backend:
   stage: docker-build
-  image: docker:24.0.5      # Docker CLI
+  image: docker:24.0.5
   services:
-    - name: docker:24.0.5-dind  # Docker daemon
+    - name: docker:24.0.5-dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""      # désactive TLS entre CLI et daemon
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
     - echo "🐳 Build et push backend via Docker-in-Docker"
-    - docker build \
-      -f backend/Dockerfile.prod \
-      -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" \
-      backend
+    - docker build -f backend/Dockerfile.prod -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" backend
     - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
     - docker tag "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/backend:latest"
     - docker push "$CI_REGISTRY_IMAGE/backend:latest"
@@ -200,10 +197,7 @@ build_docker_frontend:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
     - echo "🐳 Build et push frontend via Docker-in-Docker"
-    - docker build \
-      -f Dockerfile.prod \
-      -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" \
-      .
+    - docker build -f Dockerfile.prod -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" .
     - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA"
     - docker tag "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/frontend:latest"
     - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
