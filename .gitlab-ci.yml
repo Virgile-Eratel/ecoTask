@@ -106,6 +106,8 @@ test_backend:
   dependencies:
     - install_dependencies
   before_script:
+    - echo "Installation d'OpenSSL..."
+    - apk add --no-cache openssl
     - echo "Préparation de la base de données SQLite pour les tests..."
     - cd backend
     - npx prisma generate
