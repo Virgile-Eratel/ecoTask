@@ -211,7 +211,7 @@ deploy_production:
   only:
     - main
   before_script:
-    - apk add --no-cache openssh-client curl
+    - apk add --no-cache openssh-client curl git
     - |
       curl -SL \
         "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" \
@@ -221,20 +221,16 @@ deploy_production:
     - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - ssh-keyscan -H 51.68.233.128 >> ~/.ssh/known_hosts
-
   script:
-    - echo "🚀 Déploiement en production via Docker Compose (sans cd)"
-
     - |
       ssh dev5@51.68.233.128 << 'EOF'
-        echo "$CI_REGISTRY_PASSWORD" \
-          | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-        docker-compose -f /var/www/ecotask/docker-compose-prod.yml pull
-        docker-compose -f /var/www/ecotask/docker-compose-prod.yml up -d --remove-orphans
+        set -eux
+        cd ~/ecoTask
+        echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+        docker-compose -f docker-compose-prod.yml pull
+        docker-compose -f docker-compose-prod.yml up -d --remove-orphans
         docker system prune -f
       EOF
-
   environment:
     name: production
     url: http://51.68.233.128
-  when: manual
