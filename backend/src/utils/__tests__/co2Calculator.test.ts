@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals'
-import { TaskTypeEnum } from '@prisma/client'
+import { TaskTypeEnum } from '../../types/enums'
 import {
   CO2_COEFFICIENTS,
   calculateCO2Emissions,

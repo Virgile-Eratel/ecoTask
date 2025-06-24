@@ -1,6 +1,6 @@
 import request from 'supertest'
 import express from 'express'
-import { Role } from '@prisma/client'
+import { Role } from '../../types/enums'
 import usersRouter from '../users'
 import { mockPrisma } from '../../test/setup'
 

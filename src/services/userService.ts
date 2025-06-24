@@ -49,27 +49,27 @@ export interface UserStats {
 
 class UserService {
   async getUsers(filters: UserFilters = {}): Promise<PaginatedResponse<User>> {
-    return apiClient.get('/users', filters) as Promise<PaginatedResponse<User>>;
+    return apiClient.get('/api/users', filters) as Promise<PaginatedResponse<User>>;
   }
 
   async getUserById(id: string): Promise<ApiResponse<{ user: User }>> {
-    return apiClient.get(`/users/${id}`);
+    return apiClient.get(`/api/users/${id}`);
   }
 
   async createUser(userData: CreateUserData): Promise<ApiResponse<{ user: User }>> {
-    return apiClient.post('/users', userData);
+    return apiClient.post('/api/users', userData);
   }
 
   async updateUser(id: string, userData: UpdateUserData): Promise<ApiResponse<{ user: User }>> {
-    return apiClient.put(`/users/${id}`, userData);
+    return apiClient.put(`/api/users/${id}`, userData);
   }
 
   async deleteUser(id: string): Promise<ApiResponse<void>> {
-    return apiClient.delete(`/users/${id}`);
+    return apiClient.delete(`/api/users/${id}`);
   }
 
   async getUserStats(id: string): Promise<ApiResponse<UserStats>> {
-    return apiClient.get(`/users/${id}/stats`);
+    return apiClient.get(`/api/users/${id}/stats`);
   }
 }
 

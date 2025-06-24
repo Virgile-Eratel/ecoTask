@@ -1,21 +1,4 @@
 services:
-  # Base de données PostgreSQL
-  postgres:
-    image: postgres:15-alpine
-    container_name: ecotask-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ecotask
-      POSTGRES_USER: ecotask_user
-      POSTGRES_PASSWORD: ecotask_password
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d
-    networks:
-      - ecotask-network
-
   # Backend API
   backend:
     build:
@@ -25,16 +8,15 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://ecotask_user:ecotask_password@postgres:5432/ecotask
+      DATABASE_URL: file:./dev.db
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
       PORT: 3001
     ports:
       - "3001:3001"
-    depends_on:
-      - postgres
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - backend_data:/app/prisma
     networks:
       - ecotask-network
     command: npm run dev
@@ -60,7 +42,7 @@ services:
       - ecotask-network
 
 volumes:
-  postgres_data:
+  backend_data:
 
 networks:
   ecotask-network:

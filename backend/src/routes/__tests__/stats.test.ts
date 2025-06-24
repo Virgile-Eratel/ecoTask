@@ -1,6 +1,6 @@
 import request from 'supertest'
 import express from 'express'
-import { TaskTypeEnum, Priority, Status } from '@prisma/client'
+import { TaskTypeEnum, Priority, Status } from '../../types/enums'
 import statsRouter from '../stats'
 import { mockPrisma } from '../../test/setup'
 

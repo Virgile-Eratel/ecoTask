@@ -1,4 +1,5 @@
-import { PrismaClient, TaskTypeEnum, Role, Priority, Status } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { TaskTypeEnum, Role, Priority, Status } from '../types/enums';
 import { calculateCO2Emissions } from './co2Calculator';
 
 const prisma = new PrismaClient();

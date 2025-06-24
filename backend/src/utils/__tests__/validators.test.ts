@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals'
 import { Request, Response, NextFunction } from 'express'
-import { Role, TaskTypeEnum, Priority, Status } from '@prisma/client'
+import { Role, TaskTypeEnum, Priority, Status } from '../../types/enums'
 import {
   createUserSchema,
   updateUserSchema,

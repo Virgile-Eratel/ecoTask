@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="72" failures="0" errors="0" time="1.838">
-  <testsuite name="CO2Calculator" errors="0" failures="0" skipped="0" timestamp="2025-06-24T08:39:40" time="1.245" tests="19">
-    <testcase classname="CO2Calculator CO2_COEFFICIENTS should have correct coefficient values" name="CO2Calculator CO2_COEFFICIENTS should have correct coefficient values" time="0.006">
+<testsuites name="jest tests" tests="72" failures="0" errors="0" time="2.21">
+  <testsuite name="CO2Calculator" errors="0" failures="0" skipped="0" timestamp="2025-06-24T09:23:48" time="1.271" tests="19">
+    <testcase classname="CO2Calculator CO2_COEFFICIENTS should have correct coefficient values" name="CO2Calculator CO2_COEFFICIENTS should have correct coefficient values" time="0.003">
     </testcase>
-    <testcase classname="CO2Calculator calculateCO2Emissions should calculate emissions correctly for LIGHT tasks" name="CO2Calculator calculateCO2Emissions should calculate emissions correctly for LIGHT tasks" time="0.001">
+    <testcase classname="CO2Calculator calculateCO2Emissions should calculate emissions correctly for LIGHT tasks" name="CO2Calculator calculateCO2Emissions should calculate emissions correctly for LIGHT tasks" time="0">
     </testcase>
     <testcase classname="CO2Calculator calculateCO2Emissions should calculate emissions correctly for TECHNICAL tasks" name="CO2Calculator calculateCO2Emissions should calculate emissions correctly for TECHNICAL tasks" time="0">
     </testcase>
-    <testcase classname="CO2Calculator calculateCO2Emissions should calculate emissions correctly for INTENSIVE tasks" name="CO2Calculator calculateCO2Emissions should calculate emissions correctly for INTENSIVE tasks" time="0.001">
+    <testcase classname="CO2Calculator calculateCO2Emissions should calculate emissions correctly for INTENSIVE tasks" name="CO2Calculator calculateCO2Emissions should calculate emissions correctly for INTENSIVE tasks" time="0">
     </testcase>
     <testcase classname="CO2Calculator calculateCO2Emissions should handle zero duration" name="CO2Calculator calculateCO2Emissions should handle zero duration" time="0">
     </testcase>
-    <testcase classname="CO2Calculator calculateCO2Emissions should handle decimal hours" name="CO2Calculator calculateCO2Emissions should handle decimal hours" time="0">
+    <testcase classname="CO2Calculator calculateCO2Emissions should handle decimal hours" name="CO2Calculator calculateCO2Emissions should handle decimal hours" time="0.001">
     </testcase>
     <testcase classname="CO2Calculator calculateCO2Emissions should round to 2 decimal places" name="CO2Calculator calculateCO2Emissions should round to 2 decimal places" time="0">
     </testcase>
@@ -23,7 +23,7 @@
     </testcase>
     <testcase classname="CO2Calculator getCO2Level should return high for values &gt; 5" name="CO2Calculator getCO2Level should return high for values &gt; 5" time="0">
     </testcase>
-    <testcase classname="CO2Calculator formatCO2 should format CO2 amounts correctly" name="CO2Calculator formatCO2 should format CO2 amounts correctly" time="0">
+    <testcase classname="CO2Calculator formatCO2 should format CO2 amounts correctly" name="CO2Calculator formatCO2 should format CO2 amounts correctly" time="0.001">
     </testcase>
     <testcase classname="CO2Calculator formatCO2 should handle large numbers" name="CO2Calculator formatCO2 should handle large numbers" time="0">
     </testcase>
@@ -40,26 +40,26 @@
     <testcase classname="CO2Calculator calculateProjectCO2 should handle zero emissions" name="CO2Calculator calculateProjectCO2 should handle zero emissions" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="Validators" errors="0" failures="0" skipped="0" timestamp="2025-06-24T08:39:40" time="1.391" tests="24">
-    <testcase classname="Validators createUserSchema should validate correct user data" name="Validators createUserSchema should validate correct user data" time="0.004">
+  <testsuite name="Validators" errors="0" failures="0" skipped="0" timestamp="2025-06-24T09:23:48" time="1.441" tests="24">
+    <testcase classname="Validators createUserSchema should validate correct user data" name="Validators createUserSchema should validate correct user data" time="0.006">
     </testcase>
     <testcase classname="Validators createUserSchema should use default role when not provided" name="Validators createUserSchema should use default role when not provided" time="0.001">
     </testcase>
-    <testcase classname="Validators createUserSchema should reject invalid email" name="Validators createUserSchema should reject invalid email" time="0.006">
+    <testcase classname="Validators createUserSchema should reject invalid email" name="Validators createUserSchema should reject invalid email" time="0.01">
     </testcase>
-    <testcase classname="Validators createUserSchema should reject short name" name="Validators createUserSchema should reject short name" time="0.001">
+    <testcase classname="Validators createUserSchema should reject short name" name="Validators createUserSchema should reject short name" time="0">
     </testcase>
-    <testcase classname="Validators createUserSchema should reject long name" name="Validators createUserSchema should reject long name" time="0.002">
+    <testcase classname="Validators createUserSchema should reject long name" name="Validators createUserSchema should reject long name" time="0.001">
     </testcase>
     <testcase classname="Validators createProjectSchema should validate correct project data" name="Validators createProjectSchema should validate correct project data" time="0">
     </testcase>
-    <testcase classname="Validators createProjectSchema should work without optional fields" name="Validators createProjectSchema should work without optional fields" time="0">
+    <testcase classname="Validators createProjectSchema should work without optional fields" name="Validators createProjectSchema should work without optional fields" time="0.001">
     </testcase>
-    <testcase classname="Validators createProjectSchema should reject invalid color format" name="Validators createProjectSchema should reject invalid color format" time="0.001">
+    <testcase classname="Validators createProjectSchema should reject invalid color format" name="Validators createProjectSchema should reject invalid color format" time="0">
     </testcase>
-    <testcase classname="Validators createProjectSchema should reject short name" name="Validators createProjectSchema should reject short name" time="0">
+    <testcase classname="Validators createProjectSchema should reject short name" name="Validators createProjectSchema should reject short name" time="0.001">
     </testcase>
-    <testcase classname="Validators createTaskSchema should validate correct task data" name="Validators createTaskSchema should validate correct task data" time="0.001">
+    <testcase classname="Validators createTaskSchema should validate correct task data" name="Validators createTaskSchema should validate correct task data" time="0">
     </testcase>
     <testcase classname="Validators createTaskSchema should use default values" name="Validators createTaskSchema should use default values" time="0">
     </testcase>
@@ -67,13 +67,13 @@
     </testcase>
     <testcase classname="Validators createTaskSchema should reject excessive estimated hours" name="Validators createTaskSchema should reject excessive estimated hours" time="0">
     </testcase>
-    <testcase classname="Validators paginationSchema should parse valid pagination params" name="Validators paginationSchema should parse valid pagination params" time="0.001">
+    <testcase classname="Validators paginationSchema should parse valid pagination params" name="Validators paginationSchema should parse valid pagination params" time="0">
     </testcase>
     <testcase classname="Validators paginationSchema should use default values" name="Validators paginationSchema should use default values" time="0">
     </testcase>
-    <testcase classname="Validators paginationSchema should reject invalid page number" name="Validators paginationSchema should reject invalid page number" time="0">
+    <testcase classname="Validators paginationSchema should reject invalid page number" name="Validators paginationSchema should reject invalid page number" time="0.001">
     </testcase>
-    <testcase classname="Validators paginationSchema should reject excessive limit" name="Validators paginationSchema should reject excessive limit" time="0.001">
+    <testcase classname="Validators paginationSchema should reject excessive limit" name="Validators paginationSchema should reject excessive limit" time="0">
     </testcase>
     <testcase classname="Validators taskFilterSchema should validate task filters" name="Validators taskFilterSchema should validate task filters" time="0">
     </testcase>
@@ -81,7 +81,7 @@
     </testcase>
     <testcase classname="Validators idParamSchema should validate valid CUID" name="Validators idParamSchema should validate valid CUID" time="0">
     </testcase>
-    <testcase classname="Validators idParamSchema should reject invalid ID format" name="Validators idParamSchema should reject invalid ID format" time="0">
+    <testcase classname="Validators idParamSchema should reject invalid ID format" name="Validators idParamSchema should reject invalid ID format" time="0.001">
     </testcase>
     <testcase classname="Validators validate middleware should validate and pass valid data" name="Validators validate middleware should validate and pass valid data" time="0">
     </testcase>
@@ -90,70 +90,70 @@
     <testcase classname="Validators validate middleware should merge body, query, and params" name="Validators validate middleware should merge body, query, and params" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="Projects Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T08:39:40" time="1.446" tests="7">
-    <testcase classname="Projects Routes GET /api/projects should return paginated projects" name="Projects Routes GET /api/projects should return paginated projects" time="0.018">
+  <testsuite name="Projects Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T09:23:48" time="1.505" tests="7">
+    <testcase classname="Projects Routes GET /api/projects should return paginated projects" name="Projects Routes GET /api/projects should return paginated projects" time="0.023">
     </testcase>
-    <testcase classname="Projects Routes GET /api/projects should filter projects by owner" name="Projects Routes GET /api/projects should filter projects by owner" time="0.004">
+    <testcase classname="Projects Routes GET /api/projects should filter projects by owner" name="Projects Routes GET /api/projects should filter projects by owner" time="0.003">
     </testcase>
-    <testcase classname="Projects Routes GET /api/projects/:id should return a specific project" name="Projects Routes GET /api/projects/:id should return a specific project" time="0.001">
+    <testcase classname="Projects Routes GET /api/projects/:id should return a specific project" name="Projects Routes GET /api/projects/:id should return a specific project" time="0.002">
     </testcase>
     <testcase classname="Projects Routes GET /api/projects/:id should return 404 for non-existent project" name="Projects Routes GET /api/projects/:id should return 404 for non-existent project" time="0.002">
     </testcase>
-    <testcase classname="Projects Routes POST /api/projects should create a new project" name="Projects Routes POST /api/projects should create a new project" time="0.008">
+    <testcase classname="Projects Routes POST /api/projects should create a new project" name="Projects Routes POST /api/projects should create a new project" time="0.007">
     </testcase>
     <testcase classname="Projects Routes DELETE /api/projects/:id should delete a project" name="Projects Routes DELETE /api/projects/:id should delete a project" time="0.001">
     </testcase>
-    <testcase classname="Projects Routes PUT /api/projects/:id/recalculate-co2 should recalculate project CO2" name="Projects Routes PUT /api/projects/:id/recalculate-co2 should recalculate project CO2" time="0.001">
+    <testcase classname="Projects Routes PUT /api/projects/:id/recalculate-co2 should recalculate project CO2" name="Projects Routes PUT /api/projects/:id/recalculate-co2 should recalculate project CO2" time="0.003">
     </testcase>
   </testsuite>
-  <testsuite name="Tasks Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T08:39:40" time="1.458" tests="8">
-    <testcase classname="Tasks Routes GET /api/tasks should return paginated tasks" name="Tasks Routes GET /api/tasks should return paginated tasks" time="0.019">
+  <testsuite name="Tasks Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T09:23:48" time="1.535" tests="8">
+    <testcase classname="Tasks Routes GET /api/tasks should return paginated tasks" name="Tasks Routes GET /api/tasks should return paginated tasks" time="0.021">
     </testcase>
-    <testcase classname="Tasks Routes GET /api/tasks should filter tasks by status" name="Tasks Routes GET /api/tasks should filter tasks by status" time="0.003">
+    <testcase classname="Tasks Routes GET /api/tasks should filter tasks by status" name="Tasks Routes GET /api/tasks should filter tasks by status" time="0.002">
     </testcase>
-    <testcase classname="Tasks Routes GET /api/tasks should search tasks by title and description" name="Tasks Routes GET /api/tasks should search tasks by title and description" time="0.002">
+    <testcase classname="Tasks Routes GET /api/tasks should search tasks by title and description" name="Tasks Routes GET /api/tasks should search tasks by title and description" time="0.001">
     </testcase>
-    <testcase classname="Tasks Routes GET /api/tasks should handle pagination" name="Tasks Routes GET /api/tasks should handle pagination" time="0.001">
+    <testcase classname="Tasks Routes GET /api/tasks should handle pagination" name="Tasks Routes GET /api/tasks should handle pagination" time="0.002">
     </testcase>
-    <testcase classname="Tasks Routes GET /api/tasks/:id should return a specific task" name="Tasks Routes GET /api/tasks/:id should return a specific task" time="0.002">
+    <testcase classname="Tasks Routes GET /api/tasks/:id should return a specific task" name="Tasks Routes GET /api/tasks/:id should return a specific task" time="0.003">
     </testcase>
-    <testcase classname="Tasks Routes GET /api/tasks/:id should return 404 for non-existent task" name="Tasks Routes GET /api/tasks/:id should return 404 for non-existent task" time="0.002">
+    <testcase classname="Tasks Routes GET /api/tasks/:id should return 404 for non-existent task" name="Tasks Routes GET /api/tasks/:id should return 404 for non-existent task" time="0.001">
     </testcase>
-    <testcase classname="Tasks Routes POST /api/tasks should create a new task" name="Tasks Routes POST /api/tasks should create a new task" time="0.005">
+    <testcase classname="Tasks Routes POST /api/tasks should create a new task" name="Tasks Routes POST /api/tasks should create a new task" time="0.007">
     </testcase>
-    <testcase classname="Tasks Routes PUT /api/tasks/:id/status should update task status" name="Tasks Routes PUT /api/tasks/:id/status should update task status" time="0.002">
+    <testcase classname="Tasks Routes PUT /api/tasks/:id/status should update task status" name="Tasks Routes PUT /api/tasks/:id/status should update task status" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="Users Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T08:39:40" time="1.453" tests="6">
+  <testsuite name="Users Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T09:23:48" time="1.576" tests="6">
     <testcase classname="Users Routes GET /api/users should return paginated users" name="Users Routes GET /api/users should return paginated users" time="0.015">
     </testcase>
-    <testcase classname="Users Routes GET /api/users/:id should return a specific user" name="Users Routes GET /api/users/:id should return a specific user" time="0.002">
+    <testcase classname="Users Routes GET /api/users/:id should return a specific user" name="Users Routes GET /api/users/:id should return a specific user" time="0.005">
     </testcase>
     <testcase classname="Users Routes GET /api/users/:id should return 404 for non-existent user" name="Users Routes GET /api/users/:id should return 404 for non-existent user" time="0.001">
     </testcase>
-    <testcase classname="Users Routes POST /api/users should create a new user" name="Users Routes POST /api/users should create a new user" time="0.007">
+    <testcase classname="Users Routes POST /api/users should create a new user" name="Users Routes POST /api/users should create a new user" time="0.005">
     </testcase>
-    <testcase classname="Users Routes PUT /api/users/:id should update a user" name="Users Routes PUT /api/users/:id should update a user" time="0.002">
+    <testcase classname="Users Routes PUT /api/users/:id should update a user" name="Users Routes PUT /api/users/:id should update a user" time="0.003">
     </testcase>
     <testcase classname="Users Routes DELETE /api/users/:id should delete a user" name="Users Routes DELETE /api/users/:id should delete a user" time="0.002">
     </testcase>
   </testsuite>
-  <testsuite name="Stats Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T08:39:40" time="1.456" tests="8">
-    <testcase classname="Stats Routes GET /api/stats/dashboard should return dashboard statistics" name="Stats Routes GET /api/stats/dashboard should return dashboard statistics" time="0.017">
+  <testsuite name="Stats Routes" errors="0" failures="0" skipped="0" timestamp="2025-06-24T09:23:48" time="1.837" tests="8">
+    <testcase classname="Stats Routes GET /api/stats/dashboard should return dashboard statistics" name="Stats Routes GET /api/stats/dashboard should return dashboard statistics" time="0.015">
     </testcase>
     <testcase classname="Stats Routes GET /api/stats/dashboard should handle empty database" name="Stats Routes GET /api/stats/dashboard should handle empty database" time="0.002">
     </testcase>
     <testcase classname="Stats Routes GET /api/stats/co2-trends should return CO2 trends" name="Stats Routes GET /api/stats/co2-trends should return CO2 trends" time="0.001">
     </testcase>
-    <testcase classname="Stats Routes GET /api/stats/co2-trends should handle different periods" name="Stats Routes GET /api/stats/co2-trends should handle different periods" time="0.004">
+    <testcase classname="Stats Routes GET /api/stats/co2-trends should handle different periods" name="Stats Routes GET /api/stats/co2-trends should handle different periods" time="0.002">
     </testcase>
     <testcase classname="Stats Routes GET /api/stats/project/:id should return project statistics" name="Stats Routes GET /api/stats/project/:id should return project statistics" time="0.002">
     </testcase>
-    <testcase classname="Stats Routes GET /api/stats/project/:id should return 404 for non-existent project" name="Stats Routes GET /api/stats/project/:id should return 404 for non-existent project" time="0.002">
+    <testcase classname="Stats Routes GET /api/stats/project/:id should return 404 for non-existent project" name="Stats Routes GET /api/stats/project/:id should return 404 for non-existent project" time="0.001">
     </testcase>
     <testcase classname="Stats Routes GET /api/stats/user/:id should return user statistics" name="Stats Routes GET /api/stats/user/:id should return user statistics" time="0.001">
     </testcase>
-    <testcase classname="Stats Routes GET /api/stats/user/:id should return 404 for non-existent user" name="Stats Routes GET /api/stats/user/:id should return 404 for non-existent user" time="0.002">
+    <testcase classname="Stats Routes GET /api/stats/user/:id should return 404 for non-existent user" name="Stats Routes GET /api/stats/user/:id should return 404 for non-existent user" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>

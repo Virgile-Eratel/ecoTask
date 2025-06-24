@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -14,7 +14,7 @@ model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
-  role      Role     @default(MEMBER)
+  role      String   @default("MEMBER") // ADMIN, MEMBER
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -62,9 +62,9 @@ model Task {
   id             String    @id @default(cuid())
   title          String
   description    String?
-  type           TaskTypeEnum
-  priority       Priority
-  status         Status    @default(TODO)
+  type           String    // LIGHT, TECHNICAL, INTENSIVE
+  priority       String    // LOW, MEDIUM, HIGH, URGENT
+  status         String    @default("TODO") // TODO, IN_PROGRESS, REVIEW, DONE
   estimatedHours Float     @default(1.0)
   actualHours    Float     @default(0.0)
   co2Emissions   Float     @default(0.0)
@@ -85,28 +85,3 @@ model Task {
 
 
 
-// Enums
-enum Role {
-  ADMIN
-  MEMBER
-}
-
-enum TaskTypeEnum {
-  LIGHT
-  TECHNICAL
-  INTENSIVE
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum Status {
-  TODO
-  IN_PROGRESS
-  REVIEW
-  DONE
-}

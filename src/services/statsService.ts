@@ -68,19 +68,19 @@ export interface UserStatsDetailed {
 
 class StatsService {
   async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
-    return apiClient.get('/stats/dashboard');
+    return apiClient.get('/api/stats/dashboard');
   }
 
   async getCO2Trends(period: '3months' | '6months' | '1year' = '6months'): Promise<ApiResponse<CO2Trends>> {
-    return apiClient.get('/stats/co2-trends', { period });
+    return apiClient.get('/api/stats/co2-trends', { period });
   }
 
   async getProjectStats(projectId: string): Promise<ApiResponse<ProjectStats>> {
-    return apiClient.get(`/stats/project/${projectId}`);
+    return apiClient.get(`/api/stats/project/${projectId}`);
   }
 
   async getUserStats(userId: string): Promise<ApiResponse<UserStatsDetailed>> {
-    return apiClient.get(`/stats/user/${userId}`);
+    return apiClient.get(`/api/stats/user/${userId}`);
   }
 }
 

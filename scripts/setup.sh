@@ -40,13 +40,8 @@ echo "✅ Dépendances du backend installées."
 # Retourner au répertoire racine
 cd ..
 
-# Démarrer PostgreSQL avec Docker
-echo "🐘 Démarrage de PostgreSQL avec Docker..."
-docker-compose up -d postgres
-
-# Attendre que PostgreSQL soit prêt
-echo "⏳ Attente que PostgreSQL soit prêt..."
-sleep 10
+# SQLite ne nécessite pas de service externe
+echo "💾 Configuration de SQLite (aucun service externe requis)..."
 
 # Générer le client Prisma et pousser le schéma
 echo "🔧 Configuration de la base de données..."

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="305" lines-covered="206" line-rate="0.6754000000000001" branches-valid="87" branches-covered="28" branch-rate="0.3218" timestamp="1750754382416" complexity="0" version="0.1">
+<coverage lines-valid="317" lines-covered="214" line-rate="0.675" branches-valid="87" branches-covered="28" branch-rate="0.3218" timestamp="1750756649133" complexity="0" version="0.1">
   <sources>
     <source>/Users/eratel/Documents/ynov/ynovM1/fullStack/ecoTaskv2/backend</source>
   </sources>
@@ -603,6 +603,48 @@
             <line number="177" hits="0" branch="true" condition-coverage="0% (0/2)"/>
             <line number="179" hits="0" branch="false"/>
             <line number="197" hits="1" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="types" line-rate="0.6666" branch-rate="1">
+      <classes>
+        <class name="enums.ts" filename="src/types/enums.ts" line-rate="0.6666" branch-rate="1">
+          <methods>
+            <method name="(anonymous_0)" hits="0" signature="()V">
+              <lines>
+                <line number="37" hits="0"/>
+              </lines>
+            </method>
+            <method name="(anonymous_1)" hits="0" signature="()V">
+              <lines>
+                <line number="41" hits="0"/>
+              </lines>
+            </method>
+            <method name="(anonymous_2)" hits="0" signature="()V">
+              <lines>
+                <line number="45" hits="0"/>
+              </lines>
+            </method>
+            <method name="(anonymous_3)" hits="0" signature="()V">
+              <lines>
+                <line number="49" hits="0"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="3" hits="5" branch="false"/>
+            <line number="10" hits="5" branch="false"/>
+            <line number="18" hits="5" branch="false"/>
+            <line number="27" hits="5" branch="false"/>
+            <line number="37" hits="5" branch="false"/>
+            <line number="38" hits="0" branch="false"/>
+            <line number="41" hits="5" branch="false"/>
+            <line number="42" hits="0" branch="false"/>
+            <line number="45" hits="5" branch="false"/>
+            <line number="46" hits="0" branch="false"/>
+            <line number="49" hits="5" branch="false"/>
+            <line number="50" hits="0" branch="false"/>
           </lines>
         </class>
       </classes>

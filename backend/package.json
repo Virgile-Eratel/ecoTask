@@ -56,7 +56,7 @@
   "keywords": [
     "ecotask",
     "api",
-    "postgresql",
+    "sqlite",
     "express",
     "typescript"
   ],

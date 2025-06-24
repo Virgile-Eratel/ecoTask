@@ -1,4 +1,4 @@
-import { TaskTypeEnum } from '@prisma/client';
+import { TaskTypeEnum } from '../types/enums';
 
 // Coefficients CO2 par type de tâche (kg CO2/h)
 export const CO2_COEFFICIENTS: Record<TaskTypeEnum, number> = {

@@ -7,20 +7,8 @@ image: node:18-alpine
 # Variables globales
 variables:
   NODE_ENV: "test"
-  POSTGRES_DB: "ecotask_test"
-  POSTGRES_USER: "ecotask_user"
-  POSTGRES_PASSWORD: "ecotask_password"
-  DATABASE_URL: "postgresql://ecotask_user:ecotask_password@postgres:5432/ecotask_test"
+  DATABASE_URL: "file:./test.db"
   JWT_SECRET: "test-jwt-secret-key"
-
-# Services pour les tests (base de données)
-services:
-  - name: postgres:15-alpine
-    alias: postgres
-    variables:
-      POSTGRES_DB: $POSTGRES_DB
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
 
 # Cache pour optimiser les builds
 cache:
@@ -118,13 +106,7 @@ test_backend:
   dependencies:
     - install_dependencies
   before_script:
-    - echo "Préparation de la base de données pour les tests..."
-    - apk add --no-cache gcompat openssl
-    - |
-      until pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do
-        echo "Attente de Postgres…"
-        sleep 1
-      done
+    - echo "Préparation de la base de données SQLite pour les tests..."
     - cd backend
     - npx prisma generate
     - npx prisma db push --force-reset

@@ -50,13 +50,13 @@ router.get('/dashboard', asyncHandler(async (req: any, res: any) => {
     
     // CO2 par mois (derniers 6 mois)
     prisma.$queryRaw`
-      SELECT 
-        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon') as month,
-        SUM("co2Emissions") as co2Amount
-      FROM tasks 
-      WHERE "createdAt" >= NOW() - INTERVAL '6 months'
-      GROUP BY DATE_TRUNC('month', "createdAt")
-      ORDER BY DATE_TRUNC('month', "createdAt")
+      SELECT
+        strftime('%m', createdAt) as month,
+        SUM(co2Emissions) as co2Amount
+      FROM tasks
+      WHERE createdAt >= datetime('now', '-6 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
     `,
   ]);
 
@@ -108,16 +108,42 @@ router.get('/co2-trends', asyncHandler(async (req: any, res: any) => {
     dateFormat = 'Mon DD';
   }
 
-  const trends = await prisma.$queryRaw`
-    SELECT 
-      TO_CHAR(DATE_TRUNC('month', "createdAt"), ${dateFormat}) as period,
-      SUM("co2Emissions") as co2Amount,
-      COUNT(*) as taskCount
-    FROM tasks 
-    WHERE "createdAt" >= NOW() - INTERVAL ${interval}
-    GROUP BY DATE_TRUNC('month', "createdAt")
-    ORDER BY DATE_TRUNC('month', "createdAt")
-  `;
+  // Exécuter la requête selon la période
+  let trends;
+  if (period === '1year') {
+    trends = await prisma.$queryRaw`
+      SELECT
+        strftime('%Y-%m', createdAt) as period,
+        SUM(co2Emissions) as co2Amount,
+        COUNT(*) as taskCount
+      FROM tasks
+      WHERE createdAt >= datetime('now', '-12 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
+    `;
+  } else if (period === '3months') {
+    trends = await prisma.$queryRaw`
+      SELECT
+        strftime('%Y-%m', createdAt) as period,
+        SUM(co2Emissions) as co2Amount,
+        COUNT(*) as taskCount
+      FROM tasks
+      WHERE createdAt >= datetime('now', '-3 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
+    `;
+  } else {
+    trends = await prisma.$queryRaw`
+      SELECT
+        strftime('%Y-%m', createdAt) as period,
+        SUM(co2Emissions) as co2Amount,
+        COUNT(*) as taskCount
+      FROM tasks
+      WHERE createdAt >= datetime('now', '-6 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
+    `;
+  }
 
   res.json({
     success: true,
@@ -165,14 +191,14 @@ router.get('/project/:id', asyncHandler(async (req: any, res: any) => {
     
     // Évolution CO2 du projet
     prisma.$queryRaw`
-      SELECT 
-        TO_CHAR(DATE_TRUNC('week', "createdAt"), 'YYYY-MM-DD') as week,
-        SUM("co2Emissions") as co2Amount
-      FROM tasks 
-      WHERE "projectId" = ${id}
-        AND "createdAt" >= NOW() - INTERVAL '3 months'
-      GROUP BY DATE_TRUNC('week', "createdAt")
-      ORDER BY DATE_TRUNC('week', "createdAt")
+      SELECT
+        strftime('%Y-%W', createdAt) as week,
+        SUM(co2Emissions) as co2Amount
+      FROM tasks
+      WHERE projectId = ${id}
+        AND createdAt >= datetime('now', '-3 months')
+      GROUP BY strftime('%Y-%W', createdAt)
+      ORDER BY strftime('%Y-%W', createdAt)
     `,
     
     // Statistiques par membre
@@ -281,14 +307,14 @@ router.get('/user/:id', asyncHandler(async (req: any, res: any) => {
     
     // Évolution CO2 de l'utilisateur
     prisma.$queryRaw`
-      SELECT 
-        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon') as month,
-        SUM("co2Emissions") as co2Amount
-      FROM tasks 
-      WHERE "assigneeId" = ${id}
-        AND "createdAt" >= NOW() - INTERVAL '6 months'
-      GROUP BY DATE_TRUNC('month', "createdAt")
-      ORDER BY DATE_TRUNC('month', "createdAt")
+      SELECT
+        strftime('%m', createdAt) as month,
+        SUM(co2Emissions) as co2Amount
+      FROM tasks
+      WHERE assigneeId = ${id}
+        AND createdAt >= datetime('now', '-6 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
     `,
   ]);
 

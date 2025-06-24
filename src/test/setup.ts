@@ -13,7 +13,7 @@ global.fetch = vi.fn()
 // Mock des variables d'environnement
 Object.defineProperty(import.meta, 'env', {
   value: {
-    VITE_API_BASE_URL: 'http://localhost:3001/api/',
+    VITE_API_BASE_URL: 'http://localhost:3002/api/',
   },
   writable: true,
 })

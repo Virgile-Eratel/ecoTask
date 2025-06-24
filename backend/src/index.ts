@@ -43,10 +43,10 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/users', userRoutes);
-app.use('/projects', projectRoutes);
-app.use('/tasks', taskRoutes);
-app.use('/stats', statsRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Error handling middleware
 app.use(notFound);

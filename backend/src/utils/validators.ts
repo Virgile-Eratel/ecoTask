@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { Role, TaskTypeEnum, Priority, Status } from '@prisma/client';
+import { Role, TaskTypeEnum, Priority, Status } from '../types/enums';
 
 // User validators
 export const createUserSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(100),
   email: z.string().email('Email invalide'),
-  role: z.nativeEnum(Role).optional().default(Role.MEMBER),
+  role: z.enum([Role.ADMIN, Role.MEMBER]).optional().default(Role.MEMBER),
 });
 
 export const updateUserSchema = createUserSchema.partial();
@@ -24,9 +24,9 @@ export const updateProjectSchema = createProjectSchema.partial();
 export const createTaskSchema = z.object({
   title: z.string().min(2, 'Le titre doit contenir au moins 2 caractères').max(200),
   description: z.string().max(1000).optional(),
-  type: z.nativeEnum(TaskTypeEnum),
-  priority: z.nativeEnum(Priority),
-  status: z.nativeEnum(Status).optional().default(Status.TODO),
+  type: z.enum([TaskTypeEnum.LIGHT, TaskTypeEnum.TECHNICAL, TaskTypeEnum.INTENSIVE]),
+  priority: z.enum([Priority.LOW, Priority.MEDIUM, Priority.HIGH, Priority.URGENT]),
+  status: z.enum([Status.TODO, Status.IN_PROGRESS, Status.REVIEW, Status.DONE]).optional().default(Status.TODO),
   assigneeId: z.string().cuid('ID assigné invalide'),
   projectId: z.string().cuid('ID projet invalide'),
   estimatedHours: z.number().min(0.1, 'Durée minimale: 0.1h').max(1000, 'Durée maximale: 1000h'),
@@ -45,9 +45,9 @@ export const paginationSchema = z.object({
 });
 
 export const taskFilterSchema = z.object({
-  status: z.nativeEnum(Status).optional(),
-  priority: z.nativeEnum(Priority).optional(),
-  type: z.nativeEnum(TaskTypeEnum).optional(),
+  status: z.enum([Status.TODO, Status.IN_PROGRESS, Status.REVIEW, Status.DONE]).optional(),
+  priority: z.enum([Priority.LOW, Priority.MEDIUM, Priority.HIGH, Priority.URGENT]).optional(),
+  type: z.enum([TaskTypeEnum.LIGHT, TaskTypeEnum.TECHNICAL, TaskTypeEnum.INTENSIVE]).optional(),
   projectId: z.string().cuid().optional(),
   assigneeId: z.string().cuid().optional(),
   search: z.string().max(100).optional(),

@@ -48,7 +48,7 @@ Si vous préférez configurer manuellement :
 
 **Backend (.env dans le dossier backend) :**
 ```env
-DATABASE_URL="postgresql://ecotask_user:ecotask_password@localhost:5432/ecotask"
+DATABASE_URL="file:./dev.db"
 NODE_ENV=development
 PORT=3001
 FRONTEND_URL=http://localhost:5173
@@ -78,12 +78,7 @@ npm install
 
 ### 3. Base de données
 
-**Démarrer PostgreSQL :**
-```bash
-docker-compose up -d postgres
-```
-
-**Configurer Prisma :**
+**Configurer SQLite avec Prisma :**
 ```bash
 cd backend
 npx prisma generate
