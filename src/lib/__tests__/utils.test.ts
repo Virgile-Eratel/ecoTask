@@ -6,7 +6,6 @@ import {
   getCO2Level,
   formatCO2,
   formatDate,
-  formatDateTime,
 } from '../utils'
 
 describe('utils', () => {
@@ -16,8 +15,8 @@ describe('utils', () => {
     })
 
     it('should handle conditional classes', () => {
-      expect(cn('base-class', true && 'conditional-class')).toBe('base-class conditional-class')
-      expect(cn('base-class', false && 'conditional-class')).toBe('base-class')
+      expect(cn('base-class', 'conditional-class')).toBe('base-class conditional-class')
+      expect(cn('base-class', false)).toBe('base-class')
     })
 
     it('should handle Tailwind conflicts', () => {

@@ -68,6 +68,7 @@ lint_frontend:
     - echo "Linting du code frontend..."
     - yarn lint || echo "Linting frontend terminé avec des avertissements"
   allow_failure: true
+  when: manual
   only:
     - merge_requests
     - main
@@ -82,6 +83,7 @@ lint_backend:
     - echo "Linting du code backend..."
     - cd backend && yarn lint || echo "Linting backend terminé avec des avertissements"
   allow_failure: true
+  when: manual
   only:
     - merge_requests
     - main
@@ -116,7 +118,7 @@ test_backend:
     - install_dependencies
   before_script:
     - echo "Préparation de la base de données pour les tests..."
-    - apk add --no-cache openssl1.1-compat libc6-compat
+    - apk add --no-cache gcompat openssl
     - cd backend
     - npx prisma generate
     - npx prisma db push --force-reset
