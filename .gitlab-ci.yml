@@ -144,6 +144,7 @@ build_frontend:
     paths:
       - dist/
     expire_in: 1 week
+  when: manual
   only:
     - merge_requests
     - main
@@ -163,6 +164,7 @@ build_backend:
     paths:
       - backend/dist/
     expire_in: 1 week
+  when: manual
   only:
     - merge_requests
     - main
@@ -184,7 +186,7 @@ build_docker_backend:
     - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
     - docker tag "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/backend:latest"
     - docker push "$CI_REGISTRY_IMAGE/backend:latest"
-
+  when: manual
 build_docker_frontend:
   stage: docker-build
   image: docker:24.0.5
@@ -217,16 +219,7 @@ deploy_production:
     - mkdir -p ~/.ssh
     - ssh-keyscan -H 51.68.233.128 >> ~/.ssh/known_hosts
   script:
-    - |
-      ssh -tt dev5@51.68.233.128 '
-        export PATH=$PATH:/usr/bin:/usr/local/bin &&
-        echo "$CI_REGISTRY_PASSWORD" \
-          | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY" &&
-        docker pull '"$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"' &&
-        docker pull '"$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA"' &&
-        docker compose -f ~/ecoTask/docker-compose-prod.yml up -d --remove-orphans &&
-        docker system prune -f
-      '
+    ssh dev5@51.68.233.128 'ls -al'
   environment:
     name: production
     url: http://51.68.233.128
