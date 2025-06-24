@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -20,5 +21,16 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
       '**/backend/**', // Exclure les tests backend
     ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'cobertura'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/vite-env.d.ts',
+      ],
+    },
   },
 })

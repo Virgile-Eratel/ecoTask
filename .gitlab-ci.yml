@@ -1,0 +1,196 @@
+# GitLab CI/CD Configuration pour EcoTaskv2
+# Application de gestion de tâches avec suivi d'impact environnemental
+
+# Image de base Node.js
+image: node:18-alpine
+
+# Variables globales
+variables:
+  NODE_ENV: "test"
+  POSTGRES_DB: "ecotask_test"
+  POSTGRES_USER: "ecotask_user"
+  POSTGRES_PASSWORD: "ecotask_password"
+  DATABASE_URL: "postgresql://ecotask_user:ecotask_password@postgres:5432/ecotask_test"
+  JWT_SECRET: "test-jwt-secret-key"
+
+# Services pour les tests (base de données)
+services:
+  - name: postgres:15-alpine
+    alias: postgres
+    variables:
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+
+# Cache pour optimiser les builds
+cache:
+  key: 
+    files:
+      - package-lock.json
+      - backend/package-lock.json
+  paths:
+    - node_modules/
+    - backend/node_modules/
+    - .yarn/cache/
+
+# Stages de la pipeline
+stages:
+  - install
+  - lint
+  - test
+  - build
+  - security
+
+# Installation des dépendances
+install_dependencies:
+  stage: install
+  script:
+    - echo "Installation des dépendances frontend..."
+    - yarn install --frozen-lockfile
+    - echo "Installation des dépendances backend..."
+    - cd backend && yarn install --frozen-lockfile
+  artifacts:
+    paths:
+      - node_modules/
+      - backend/node_modules/
+    expire_in: 1 hour
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# Linting Frontend
+lint_frontend:
+  stage: lint
+  dependencies:
+    - install_dependencies
+  script:
+    - echo "Linting du code frontend..."
+    - yarn lint || echo "Linting frontend terminé avec des avertissements"
+  allow_failure: true
+  when: manual
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# Linting Backend
+lint_backend:
+  stage: lint
+  dependencies:
+    - install_dependencies
+  script:
+    - echo "Linting du code backend..."
+    - cd backend && yarn lint || echo "Linting backend terminé avec des avertissements"
+  allow_failure: true
+  when: manual
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# Tests Frontend
+test_frontend:
+  stage: test
+  dependencies:
+    - install_dependencies
+  script:
+    - echo "Exécution des tests frontend..."
+    - yarn test --run
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# Tests Backend
+test_backend:
+  stage: test
+  dependencies:
+    - install_dependencies
+  before_script:
+    - echo "Préparation de la base de données pour les tests..."
+    - cd backend
+    - npx prisma generate
+    - npx prisma db push --force-reset
+  script:
+    - echo "Exécution des tests backend..."
+    - yarn test:ci
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/coverage/cobertura-coverage.xml
+      junit: backend/coverage/junit.xml
+    paths:
+      - backend/coverage/
+    expire_in: 1 week
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# Build Frontend
+build_frontend:
+  stage: build
+  dependencies:
+    - install_dependencies
+  script:
+    - echo "Build de l'application frontend..."
+    - yarn build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# Build Backend
+build_backend:
+  stage: build
+  dependencies:
+    - install_dependencies
+  script:
+    - echo "Build de l'application backend..."
+    - cd backend
+    - npx prisma generate
+    - yarn build
+  artifacts:
+    paths:
+      - backend/dist/
+    expire_in: 1 week
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# Build Docker Images (optionnel)
+build_docker:
+  stage: build
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker info
+  script:
+    - echo "Build des images Docker..."
+    - docker build -t ecotask-frontend:$CI_COMMIT_SHA .
+    - docker build -t ecotask-backend:$CI_COMMIT_SHA ./backend
+    - echo "Images Docker construites avec succès"
+  only:
+    - main
+    - develop
+  when: manual
