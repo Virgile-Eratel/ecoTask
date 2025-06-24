@@ -203,13 +203,10 @@ build_docker_frontend:
     - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA"
     - docker tag "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/frontend:latest"
     - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
-
+  when: manual
 deploy_production:
   stage: deploy
   image: alpine:latest
-  needs:
-    - build_docker_backend
-    - build_docker_frontend
   only:
     - main
   before_script:
