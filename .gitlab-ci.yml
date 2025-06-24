@@ -217,13 +217,10 @@ deploy_production:
   only:
     - main
   before_script:
-    # 1) installer ssh et docker compose client
     - apk add --no-cache openssh-client curl
     - curl -SL "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" \
       -o /usr/local/bin/docker-compose
     - chmod +x /usr/local/bin/docker-compose
-
-    # 2) préparer SSH
     - eval "$(ssh-agent -s)"
     - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -231,21 +228,13 @@ deploy_production:
 
   script:
     - echo "🚀 Déploiement en production via Docker Compose"
-
-    # 3) synchroniser le fichier compose et .env
     - rsync -az --delete docker-compose-prod.yml dev5@51.68.233.128:/var/www/ecotask/docker-compose-prod.yml
     - rsync -az --delete .env.prod dev5@51.68.233.128:/var/www/ecotask/.env
-
-    # 4) exécuter docker compose sur le serveur
     - ssh dev5@51.68.233.128 << 'EOF'
       cd /var/www/ecotask
-      # login au registry
       echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-      # (optionnel) pull des dernières images
       docker-compose -f docker-compose-prod.yml pull
-      # monter les services en arrière-plan
       docker-compose -f docker-compose-prod.yml up -d --remove-orphans
-      # nettoyage
       docker system prune -f
       EOF
 
