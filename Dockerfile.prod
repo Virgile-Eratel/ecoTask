@@ -19,7 +19,7 @@ COPY postcss.config.js ./
 COPY eslint.config.js ./
 
 # Installer les dépendances
-RUN npm ci --only=production=false
+RUN npm ci
 
 # Copier le code source
 COPY src ./src/

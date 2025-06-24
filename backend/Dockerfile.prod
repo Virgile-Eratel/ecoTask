@@ -21,7 +21,7 @@ COPY --chown=nodejs:nodejs tsconfig.json ./
 COPY --chown=nodejs:nodejs prisma ./prisma/
 
 # Installer toutes les dépendances (y compris dev pour TypeScript)
-RUN npm ci --only=production=false
+RUN npm ci
 
 # Générer le client Prisma
 RUN npx prisma generate
