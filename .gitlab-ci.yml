@@ -143,7 +143,6 @@ build_frontend:
     paths:
       - dist/
     expire_in: 1 week
-  when: manual
   only:
     - merge_requests
     - main
@@ -163,7 +162,6 @@ build_backend:
     paths:
       - backend/dist/
     expire_in: 1 week
-  when: manual
   only:
     - merge_requests
     - main
@@ -172,26 +170,29 @@ build_backend:
 deploy_dev:
   stage: deploy
   image: alpine:latest
+  needs:
+    - job: build_frontend
+      artifacts: true
+    - job: build_backend
+      artifacts: true
   only:
-    - main        # ne déployez que depuis la branche main
+    - main
   before_script:
-    # installer ssh & rsync
     - apk add --no-cache openssh-client rsync
-    # démarrer l'agent SSH, ajouter la clé privée
     - eval "$(ssh-agent -s)"
     - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
-    # config SSH
     - mkdir -p ~/.ssh
     - printf "%s\n" "$SSH_PUB" > ~/.ssh/id_rsa.pub
     - chmod 600 ~/.ssh/id_rsa*
-    # éviter les prompts host key verification
     - ssh-keyscan -H 51.68.233.128 >> ~/.ssh/known_hosts
   script:
-    # 1) copier le frontend
+    # Créer les répertoires distants (si besoin)
+    - ssh dev5@51.68.233.128 "mkdir -p /var/www/ecotask/frontend /var/www/ecotask/backend"
+    # Synchroniser le frontend
     - rsync -az --delete dist/ dev5@51.68.233.128:/var/www/ecotask/frontend/
-    # 2) copier le backend
+    # Synchroniser le backend
     - rsync -az --delete backend/dist/ dev5@51.68.233.128:/var/www/ecotask/backend/
-    # 3) relancer le serveur (ici PM2, adaptez si besoin)
+    # Relancer l'application (ex : PM2)
     - ssh dev5@51.68.233.128 "cd /var/www/ecotask/backend && pm2 restart all"
   environment:
     name: dev
