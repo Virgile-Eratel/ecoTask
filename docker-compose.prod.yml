@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    image: ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_SHA:-latest}
+    container_name: ecotask-backend-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:./data/prod.db
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3002
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - ecotask-network
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`${DOMAIN:-localhost}`) && PathPrefix(`/api`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=3002"
+
+  # Frontend React/Vite
+  frontend:
+    image: ${CI_REGISTRY_IMAGE}/frontend:${CI_COMMIT_SHA:-latest}
+    container_name: ecotask-frontend-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - ecotask-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  # Reverse proxy (optionnel, pour la production avancée)
+  traefik:
+    image: traefik:v2.10
+    container_name: ecotask-traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Dashboard Traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - ecotask-network
+    profiles:
+      - traefik
+
+volumes:
+  backend_data:
+    driver: local
+
+networks:
+  ecotask-network:
+    driver: bridge

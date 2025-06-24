@@ -110,13 +110,40 @@ cd backend && yarn test:ci
 cd backend && npm run dev
 ```
 
+## Déploiement Docker
+
+### Configuration CI/CD avec Docker
+
+La migration vers SQLite a également permis de simplifier le déploiement avec Docker :
+
+- **Images Docker** : Frontend (Nginx) + Backend (Node.js)
+- **Registry** : GitLab Container Registry
+- **Déploiement** : Automatisé via GitLab CI/CD
+- **Serveur** : dev5@51.68.233.128
+
+### Fichiers de déploiement ajoutés
+
+- `Dockerfile.prod` : Image de production frontend
+- `backend/Dockerfile.prod` : Image de production backend
+- `docker-compose.prod.yml` : Configuration de production
+- `scripts/deploy.sh` : Script de déploiement
+- `scripts/setup-server.sh` : Configuration du serveur
+- `DEPLOYMENT.md` : Guide de déploiement complet
+
+### Pipeline CI/CD
+
+1. **Install** → **Lint** → **Test** → **Build**
+2. **Docker Build** : Construction des images
+3. **Deploy** : Déploiement sur le serveur (manuel)
+
 ## Conclusion
 
 La migration vers SQLite a été réalisée avec succès, simplifiant considérablement l'infrastructure tout en conservant toutes les fonctionnalités. Cette approche est particulièrement adaptée pour :
 
 - Les environnements de développement
 - Les tests automatisés
-- Les déploiements simples
+- Les déploiements simples avec Docker
 - Les projets de taille petite à moyenne
+- La CI/CD simplifiée sans services externes
 
 Pour des besoins de production avec forte concurrence, PostgreSQL reste recommandé, mais la migration inverse est possible grâce à Prisma.

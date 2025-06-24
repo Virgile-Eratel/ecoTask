@@ -9,6 +9,14 @@ variables:
   NODE_ENV: "test"
   DATABASE_URL: "file:./test.db"
   JWT_SECRET: "test-jwt-secret-key"
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_VERIFY: 1
+
+# Services pour Docker-in-Docker
+services:
+  - docker:24.0.5-dind
 
 # Cache pour optimiser les builds
 cache:
@@ -27,6 +35,7 @@ stages:
   - lint
   - test
   - build
+  - docker-build
   - deploy
 
 # Installation des dépendances
@@ -167,18 +176,52 @@ build_backend:
     - main
     - develop
 
-deploy_dev:
+# Build Docker Images
+build_docker_backend:
+  stage: docker-build
+  image: docker:24.0.5
+  dependencies:
+    - build_backend
+  before_script:
+    - docker info
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - echo "🐳 Construction de l'image Docker backend..."
+    - cd backend
+    - docker build -f Dockerfile.prod -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE/backend:latest .
+    - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/backend:latest
+  only:
+    - main
+    - develop
+
+build_docker_frontend:
+  stage: docker-build
+  image: docker:24.0.5
+  dependencies:
+    - build_frontend
+  before_script:
+    - docker info
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - echo "🐳 Construction de l'image Docker frontend..."
+    - docker build -f Dockerfile.prod -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE/frontend:latest .
+    - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/frontend:latest
+  only:
+    - main
+    - develop
+
+deploy_production:
   stage: deploy
   image: alpine:latest
   needs:
-    - job: build_frontend
-      artifacts: true
-    - job: build_backend
-      artifacts: true
+    - job: build_docker_backend
+    - job: build_docker_frontend
   only:
     - main
   before_script:
-    - apk add --no-cache openssh-client rsync
+    - apk add --no-cache openssh-client rsync curl
     - eval "$(ssh-agent -s)"
     - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -186,14 +229,35 @@ deploy_dev:
     - chmod 600 ~/.ssh/id_rsa*
     - ssh-keyscan -H 51.68.233.128 >> ~/.ssh/known_hosts
   script:
-    # Créer les répertoires distants (si besoin)
-    - ssh dev5@51.68.233.128 "mkdir -p /var/www/ecotask/frontend /var/www/ecotask/backend"
-    # Synchroniser le frontend
-    - rsync -az --delete dist/ dev5@51.68.233.128:/var/www/ecotask/frontend/
-    # Synchroniser le backend
-    - rsync -az --delete backend/dist/ dev5@51.68.233.128:/var/www/ecotask/backend/
-    # Relancer l'application (ex : PM2)
-    - ssh dev5@51.68.233.128 "cd /var/www/ecotask/backend && pm2 restart all"
+    - echo "🚀 Déploiement sur le serveur de production..."
+
+    # Créer les répertoires distants
+    - ssh dev5@51.68.233.128 "mkdir -p /var/www/ecotask"
+
+    # Copier les fichiers de configuration Docker
+    - rsync -az --delete docker-compose.prod.yml dev5@51.68.233.128:/var/www/ecotask/
+    - rsync -az --delete .env.prod.example dev5@51.68.233.128:/var/www/ecotask/.env.prod
+    - rsync -az --delete scripts/deploy.sh dev5@51.68.233.128:/var/www/ecotask/
+
+    # Rendre le script de déploiement exécutable
+    - ssh dev5@51.68.233.128 "chmod +x /var/www/ecotask/deploy.sh"
+
+    # Se connecter au registry Docker et déployer
+    - ssh dev5@51.68.233.128 "
+        cd /var/www/ecotask &&
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' &&
+        export CI_REGISTRY_IMAGE='$CI_REGISTRY_IMAGE' &&
+        export CI_COMMIT_SHA='$CI_COMMIT_SHA' &&
+        docker-compose -f docker-compose.prod.yml pull &&
+        docker-compose -f docker-compose.prod.yml down --remove-orphans &&
+        docker-compose -f docker-compose.prod.yml up -d &&
+        docker system prune -f
+      "
+
+    # Vérifier que l'application est en ligne
+    - echo "⏳ Va vérifier que l'application est en ligne..."
+
   environment:
-    name: dev
+    name: production
     url: http://51.68.233.128
+  when: manual

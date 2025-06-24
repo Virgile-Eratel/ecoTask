@@ -1,0 +1,51 @@
+# Dockerfile de production pour le backend Node.js/Express
+FROM node:18-alpine
+
+# Installer les dépendances système nécessaires
+RUN apk add --no-cache openssl dumb-init
+
+# Créer un utilisateur non-root pour la sécurité
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Créer le répertoire de l'application
+WORKDIR /app
+
+# Changer le propriétaire du répertoire
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
+# Copier les fichiers de configuration
+COPY --chown=nodejs:nodejs package*.json ./
+COPY --chown=nodejs:nodejs tsconfig.json ./
+COPY --chown=nodejs:nodejs prisma ./prisma/
+
+# Installer toutes les dépendances (y compris dev pour TypeScript)
+RUN npm ci --only=production=false
+
+# Générer le client Prisma
+RUN npx prisma generate
+
+# Copier le code source
+COPY --chown=nodejs:nodejs src ./src/
+
+# Construire l'application
+RUN npm run build
+
+# Supprimer les dépendances de développement après la construction
+RUN npm prune --production && npm cache clean --force
+
+# Exposer le port
+EXPOSE 3002
+
+# Variables d'environnement par défaut
+ENV NODE_ENV=production
+ENV PORT=3002
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD node healthcheck.js
+
+# Commande de démarrage avec dumb-init pour une gestion propre des signaux
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["npm", "start"]

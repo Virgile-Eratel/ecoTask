@@ -18,11 +18,11 @@ RUN npm ci
 RUN npx prisma generate
 
 # Exposer le port
-EXPOSE 3001
+EXPOSE 3002
 
 # Variables d'environnement par défaut
 ENV NODE_ENV=development
-ENV PORT=3001
+ENV PORT=3002
 
 # Commande de démarrage en mode développement
 CMD ["npm", "run", "dev"]
