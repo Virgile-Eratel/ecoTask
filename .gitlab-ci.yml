@@ -217,12 +217,14 @@ deploy_production:
     - mkdir -p ~/.ssh
     - ssh-keyscan -H 51.68.233.128 >> ~/.ssh/known_hosts
   script:
-    - ssh dev5@51.68.233.128 \
-      "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && \
-      docker pull $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA && \
-      docker pull $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA && \
-      cd ~/ecoTask && \
-      docker compose -f docker-compose-prod.yml up -d --remove-orphans"
+    - >
+      ssh -t dev5@51.68.233.128
+      "echo '$CI_REGISTRY_PASSWORD' \
+         | /usr/bin/docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && \
+       /usr/bin/docker pull $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA && \
+       /usr/bin/docker pull $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA && \
+       /usr/bin/docker compose -f /home/dev5/ecoTask/docker-compose-prod.yml up -d --remove-orphans && \
+       /usr/bin/docker system prune -f"
   environment:
     name: production
     url: http://51.68.233.128
