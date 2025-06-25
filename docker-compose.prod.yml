@@ -3,13 +3,13 @@ version: '3.8'
 services:
   # Backend API
   backend:
-    image: ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_SHA:-latest}
+    image: registry.gitlab.com/Virgile-Eratel/ecoTask/backend:latest
     container_name: ecotask-backend-prod
     restart: unless-stopped
     environment:
       NODE_ENV: production
       DATABASE_URL: file:./data/prod.db
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: test
       PORT: 3002
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
     volumes:
