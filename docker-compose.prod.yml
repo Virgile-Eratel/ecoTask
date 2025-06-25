@@ -8,8 +8,8 @@ services:
       DATABASE_URL: file:./data/prod.db
       JWT_SECRET: test
       PORT: 3002
-      FRONTEND_URL: http://localhost
-      DOMAIN: localhost
+      FRONTEND_URL: http://51.68.233.128
+      DOMAIN: 51.68.233.128
     volumes:
       - backend_data:/app/data
     networks:
