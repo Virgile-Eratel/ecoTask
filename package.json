@@ -22,7 +22,8 @@
     "docker:build": "docker compose build",
     "docker:test": "./scripts/test-docker.sh",
     "ci:test": "./scripts/test-ci.sh",
-    "db:studio": "cd backend && npm run db:studio"
+    "db:studio": "cd backend && npm run db:studio",
+    "monitoring": "./scripts/open-monitoring.sh"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

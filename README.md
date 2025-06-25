@@ -38,6 +38,11 @@ EcoTask est une plateforme web de gestion de tâches dédiée aux petites entrep
 - **Zod** pour la validation
 - **Docker** pour la containerisation
 
+### Monitoring
+- **Uptime Kuma** pour la surveillance des services
+- **Health checks** automatiques
+- **Alertes** en cas de panne (configurable)
+
 ### Base de données
 - **PostgreSQL 15** avec Docker
 - **Prisma** pour les migrations et requêtes
@@ -119,8 +124,9 @@ npm run dev
 
 ### URLs d'accès
 - **Frontend** : http://localhost:5173
-- **Backend API** : http://localhost:3001
-- **Health Check** : http://localhost:3001/health
+- **Backend API** : http://localhost:3002
+- **Health Check** : http://localhost:3002/health
+- **Uptime Kuma (Monitoring)** : http://localhost:3001
 - **Prisma Studio** : `cd backend && npm run db:studio`
 
 ### Scripts disponibles
