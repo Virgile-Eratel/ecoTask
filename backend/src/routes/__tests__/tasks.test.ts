@@ -1,5 +1,5 @@
-import request from 'supertest'
-import express from 'express'
+import * as request from 'supertest'
+import * as express from 'express'
 import { TaskTypeEnum, Priority, Status } from '../../types/enums'
 import tasksRouter from '../tasks'
 import { mockPrisma } from '../../test/setup'
