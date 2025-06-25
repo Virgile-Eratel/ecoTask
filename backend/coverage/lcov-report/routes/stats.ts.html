@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.66% </span>
+                <span class="strong">95.31% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>58/60</span>
+                <span class='fraction'>61/64</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60.71% </span>
+                <span class="strong">62.5% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>17/28</span>
+                <span class='fraction'>20/32</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.29% </span>
+                <span class="strong">94.82% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>52/54</span>
+                <span class='fraction'>55/58</span>
             </div>
         
             
@@ -401,7 +401,33 @@
 <a name='L336'></a><a href='#L336'>336</a>
 <a name='L337'></a><a href='#L337'>337</a>
 <a name='L338'></a><a href='#L338'>338</a>
-<a name='L339'></a><a href='#L339'>339</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L339'></a><a href='#L339'>339</a>
+<a name='L340'></a><a href='#L340'>340</a>
+<a name='L341'></a><a href='#L341'>341</a>
+<a name='L342'></a><a href='#L342'>342</a>
+<a name='L343'></a><a href='#L343'>343</a>
+<a name='L344'></a><a href='#L344'>344</a>
+<a name='L345'></a><a href='#L345'>345</a>
+<a name='L346'></a><a href='#L346'>346</a>
+<a name='L347'></a><a href='#L347'>347</a>
+<a name='L348'></a><a href='#L348'>348</a>
+<a name='L349'></a><a href='#L349'>349</a>
+<a name='L350'></a><a href='#L350'>350</a>
+<a name='L351'></a><a href='#L351'>351</a>
+<a name='L352'></a><a href='#L352'>352</a>
+<a name='L353'></a><a href='#L353'>353</a>
+<a name='L354'></a><a href='#L354'>354</a>
+<a name='L355'></a><a href='#L355'>355</a>
+<a name='L356'></a><a href='#L356'>356</a>
+<a name='L357'></a><a href='#L357'>357</a>
+<a name='L358'></a><a href='#L358'>358</a>
+<a name='L359'></a><a href='#L359'>359</a>
+<a name='L360'></a><a href='#L360'>360</a>
+<a name='L361'></a><a href='#L361'>361</a>
+<a name='L362'></a><a href='#L362'>362</a>
+<a name='L363'></a><a href='#L363'>363</a>
+<a name='L364'></a><a href='#L364'>364</a>
+<a name='L365'></a><a href='#L365'>365</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -511,7 +537,33 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -791,13 +843,13 @@ router.get('/dashboard', asyncHandler(async (req: any, res: any) =&gt; {
     
     // CO2 par mois (derniers 6 mois)
     prisma.$queryRaw`
-      SELECT 
-        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon') as month,
-        SUM("co2Emissions") as co2Amount
-      FROM tasks 
-      WHERE "createdAt" &gt;= NOW() - INTERVAL '6 months'
-      GROUP BY DATE_TRUNC('month', "createdAt")
-      ORDER BY DATE_TRUNC('month', "createdAt")
+      SELECT
+        strftime('%m', createdAt) as month,
+        SUM(co2Emissions) as co2Amount
+      FROM tasks
+      WHERE createdAt &gt;= datetime('now', '-6 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
     `,
   ]);
 &nbsp;
@@ -849,16 +901,42 @@ router.get('/co2-trends', asyncHandler(async (req: any, res: any) =&gt; {
 <span class="cstat-no" title="statement not covered" >    dateFormat = 'Mon DD';</span>
   }
 &nbsp;
-  const trends = await prisma.$queryRaw`
-    SELECT 
-      TO_CHAR(DATE_TRUNC('month', "createdAt"), ${dateFormat}) as period,
-      SUM("co2Emissions") as co2Amount,
-      COUNT(*) as taskCount
-    FROM tasks 
-    WHERE "createdAt" &gt;= NOW() - INTERVAL ${interval}
-    GROUP BY DATE_TRUNC('month', "createdAt")
-    ORDER BY DATE_TRUNC('month', "createdAt")
-  `;
+  // Exécuter la requête selon la période
+  let trends;
+  if (period === '1year') {
+    trends = await prisma.$queryRaw`
+      SELECT
+        strftime('%Y-%m', createdAt) as period,
+        SUM(co2Emissions) as co2Amount,
+        COUNT(*) as taskCount
+      FROM tasks
+      WHERE createdAt &gt;= datetime('now', '-12 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
+    `;
+  } else <span class="missing-if-branch" title="if path not taken" >I</span>if (period === '3months') {
+<span class="cstat-no" title="statement not covered" >    trends = await prisma.$queryRaw`</span>
+      SELECT
+        strftime('%Y-%m', createdAt) as period,
+        SUM(co2Emissions) as co2Amount,
+        COUNT(*) as taskCount
+      FROM tasks
+      WHERE createdAt &gt;= datetime('now', '-3 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
+    `;
+  } else {
+    trends = await prisma.$queryRaw`
+      SELECT
+        strftime('%Y-%m', createdAt) as period,
+        SUM(co2Emissions) as co2Amount,
+        COUNT(*) as taskCount
+      FROM tasks
+      WHERE createdAt &gt;= datetime('now', '-6 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
+    `;
+  }
 &nbsp;
   res.json({
     success: true,
@@ -906,14 +984,14 @@ router.get('/project/:id', asyncHandler(async (req: any, res: any) =&gt; {
     
     // Évolution CO2 du projet
     prisma.$queryRaw`
-      SELECT 
-        TO_CHAR(DATE_TRUNC('week', "createdAt"), 'YYYY-MM-DD') as week,
-        SUM("co2Emissions") as co2Amount
-      FROM tasks 
-      WHERE "projectId" = ${id}
-        AND "createdAt" &gt;= NOW() - INTERVAL '3 months'
-      GROUP BY DATE_TRUNC('week', "createdAt")
-      ORDER BY DATE_TRUNC('week', "createdAt")
+      SELECT
+        strftime('%Y-%W', createdAt) as week,
+        SUM(co2Emissions) as co2Amount
+      FROM tasks
+      WHERE projectId = ${id}
+        AND createdAt &gt;= datetime('now', '-3 months')
+      GROUP BY strftime('%Y-%W', createdAt)
+      ORDER BY strftime('%Y-%W', createdAt)
     `,
     
     // Statistiques par membre
@@ -1022,14 +1100,14 @@ router.get('/user/:id', asyncHandler(async (req: any, res: any) =&gt; {
     
     // Évolution CO2 de l'utilisateur
     prisma.$queryRaw`
-      SELECT 
-        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'Mon') as month,
-        SUM("co2Emissions") as co2Amount
-      FROM tasks 
-      WHERE "assigneeId" = ${id}
-        AND "createdAt" &gt;= NOW() - INTERVAL '6 months'
-      GROUP BY DATE_TRUNC('month', "createdAt")
-      ORDER BY DATE_TRUNC('month', "createdAt")
+      SELECT
+        strftime('%m', createdAt) as month,
+        SUM(co2Emissions) as co2Amount
+      FROM tasks
+      WHERE assigneeId = ${id}
+        AND createdAt &gt;= datetime('now', '-6 months')
+      GROUP BY strftime('%Y-%m', createdAt)
+      ORDER BY strftime('%Y-%m', createdAt)
     `,
   ]);
 &nbsp;
@@ -1084,7 +1162,7 @@ export default router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-24T09:17:29.111Z
+                at 2025-06-25T07:32:02.840Z
             </div>
         <script src="../prettify.js"></script>
         <script>
